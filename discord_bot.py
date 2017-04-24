@@ -60,14 +60,14 @@ async def on_message(message):
         msg = base_text.format(message)
         await client.send_message(message.channel, msg)
     elif message.content.startswith(u'!полк'):
-        with urllib.request.urlopen(settings.REGIMENT_URL) as url:
+        with urllib.request.urlopen(settings.REGIMENT_URL+'/export/json') as url:
             data = json.loads(url.read().decode())
             text = u'__**КПД:**__ ' \
                    + '(**РБ**) ' + str("%.2f" % data['kpd_r']) + '; ' \
                    + '(**СБ**) ' + str("%.2f" % data['kpd_s']) + '; ' \
                    + '(**АБ**) ' + str("%.2f" % data['kpd_a']) + '; ' \
                    + '\n' \
-                   + u'Подробнее - http://thunderskill.com/ru/squad/%E2%95%96AFI%E2%95%96'
+                   + u'Подробнее - ' + settings.REGIMENT_URL
         await client.send_message(message.channel, text)
 
 client.run(settings.BOT_TOKEN)
