@@ -60,7 +60,7 @@ async def on_message(message):
         msg = base_text.format(message)
         await client.send_message(message.channel, msg)
     elif message.content.startswith(u'!полк'):
-        with urllib.request.urlopen("http://thunderskill.com/ru/squad/%E2%95%96AFI%E2%95%96/export/json") as url:
+        with urllib.request.urlopen(settings.REGIMENT_URL) as url:
             data = json.loads(url.read().decode())
             text = u'__**КПД:**__ ' \
                    + '(**РБ**) ' + str("%.2f" % data['kpd_r']) + '; ' \
