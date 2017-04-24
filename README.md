@@ -9,6 +9,29 @@ BOT_TOKEN = 'здесь-вписать-токен-бота'
 REGIMENT_URL = 'ссылка-на-страницу-полка-на-ThunderSkill'
 ```
 
+__Создание БД__
+
+В базе данных будет храниться связь сервера Discord
+с адресом полка на ThunderSkill.
+
+```python
+import sqlite3 as lite
+conn = lite.connect("afi.db")
+cursor = conn.cursor()
+cursor.execute("""CREATE TABLE squads
+               (discord_server_id, squad)
+               """)
+conn.commit()
+conn.close()
+```
+Чтобы задать такую связь, владелец сервера должен отправить команду:
+
+`!адрес:http://адрес-полка-в-ThunderSkill`
+
+Например, для полка ACES:
+
+`!адрес:http://thunderskill.com/en/squad/%5BACES%5D`
+
 __Бот реагирует на команды:__
 
 `!полк` - возвращает статистику полка и ссылку 
