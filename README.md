@@ -1,6 +1,8 @@
-# afi
+# AFI - Discord-бот, который любит WarThunder
 
-Для начала работы нужно добавить файл settings.py
+Бот работает через [discord.py](https://github.com/Rapptz/discord.py).
+Установите его и клонируйте репозиторий AFI, после чего
+нужно будет добавить файл settings.py
 
 ```
 # -*- coding: utf-8 -*-

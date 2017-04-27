@@ -3,7 +3,6 @@ import urllib.request
 import json
 import settings
 import sqlite3 as lite
-import sys
 
 client = discord.Client()
 
@@ -25,7 +24,8 @@ async def on_message(message):
             if log.author == message.author:
                 counter += 1
         await client.edit_message(tmp, 'You have {} messages.'.format(counter))
-    elif message.content.startswith(u'!адрес:'):
+    elif message.content.startswith(u'!адрес:')\
+            or message.content.startswith(u'!address:'):
         squad_url = message.content[7:]
         if message.author != message.server.owner:
             text = u'{0.author.mention}, ты тут не командуешь, 8==Э тебе'
@@ -48,7 +48,7 @@ async def on_message(message):
         msg = text.format(message)
         await client.send_message(message.channel, msg)
     elif message.content.startswith(u'!статка') \
-            or message.content.startswith(u'!стата'):
+            or message.content.startswith(u'!stat'):
         base_text = ''
         if not message.mentions:
             name = message.author.display_name.split('*', 1)[0]
@@ -81,7 +81,8 @@ async def on_message(message):
                     base_text = base_text + text
         msg = base_text.format(message)
         await client.send_message(message.channel, msg)
-    elif message.content.startswith(u'!полк'):
+    elif message.content.startswith(u'!полк') \
+            or message.content.startswith(u'!squad'):
         discord_server_id = str(message.server.id)
         conn = lite.connect("afi.db")
         cursor = conn.cursor()
@@ -89,9 +90,9 @@ async def on_message(message):
         cursor.execute(sql, [(discord_server_id)])
         data = cursor.fetchall()
         if len(data) == 0:
-            text = u'Для этого сервера Discord не указан полк ' \
-                   u'WarThunder. Владелец сервера должен дать мне команду ' \
-                   u'`!адрес:http://адрес-полка-в-ThunderSkill`'
+            text = (u'Для этого сервера Discord не указан полк WarThunder. '
+                    u'Владелец сервера должен дать мне команду '
+                    u'`!адрес:http://адрес-полка-в-ThunderSkill`')
         else:
             squad_url = data[0][1]
             try:
