@@ -1,9 +1,21 @@
 # AFI - Discord-бот, который любит WarThunder
 
 Бот работает через [discord.py](https://github.com/Rapptz/discord.py).
-Установите его и клонируйте репозиторий AFI, после чего
-нужно будет добавить файл settings.py
 
+Установка **Discord.py**:
+
+```
+sudo apt install build-essential
+sudo apt install python3-pip
+sudo apt install python3-dev
+sudo apt install python3-setuptools
+sudo apt install libffi-dev
+sudo apt install git
+sudo python3 -m pip install --upgrade pip
+sudo python3 -m pip install -U discord.py[voice]
+```
+
+После этого клонируйте репозиторий AFI, и добавте файл settings.py
 ```
 # -*- coding: utf-8 -*-
 
@@ -25,6 +37,7 @@ cursor.execute("""CREATE TABLE squads
 conn.commit()
 conn.close()
 ```
+
 Чтобы задать такую связь, владелец сервера должен отправить команду:
 
 `!адрес:http://адрес-полка-в-ThunderSkill`
