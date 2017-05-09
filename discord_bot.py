@@ -7,24 +7,27 @@ import sqlite3 as lite
 client = discord.Client()
 
 
-# @client.event
-# async def on_ready():
-#     print('Logged in as')
-#     print(client.user.name)
-#     print(client.user.id)
-#     print('------')
+@client.event
+async def on_ready():
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
 
 
 @client.event
 async def on_message(message):
-    if message.content.startswith(u'!ку'):
-        counter = 0
-        tmp = await client.send_message(message.channel, 'Чё надо?')
-        async for log in client.logs_from(message.channel, limit=500):
-            if log.author == message.author:
-                counter += 1
-        await client.edit_message(tmp, 'Много говоришь, '
-                                       'уже {} сообщений наговорил.'.format(counter))
+    afi = client.user
+    if afi in message.mentions:
+        text = u'{0.author.mention}, запоминай: \n' \
+               u'`!статка` - показываю твою статку с ThunderSkill;\n' \
+               u'`!статка @<pupkin>` - покажу Васькину стату;\n' \
+               u'`!полк` - покажу стату полка;\n' \
+               u'`!адрес:http://адрес_полка_в_thunderskill` - ' \
+               u'запоминаю, откуда брать статку полка (только владелец сервера)\n' \
+               u'Пока всё, но я учусь ;)'
+        msg = text.format(message)
+        await client.send_message(message.channel, msg)
     elif message.content.startswith(u'адрес:')\
             or message.content.startswith(u'!адрес:'):
         squad_url = message.content[7:]
@@ -52,7 +55,8 @@ async def on_message(message):
     elif message.content.startswith(u'!статка'):
         base_text = ''
         if not message.mentions:
-            name = message.author.display_name.split('*', 1)[0]
+            s = message.author.display_name
+            name = s[s.find("<") + 1:s.find(">")]
             base_url = "http://thunderskill.com/ru/stat/"
             url = "http://thunderskill.com/ru/stat/" + name + "/export/json"
             try:
@@ -65,11 +69,16 @@ async def on_message(message):
                                 + '(**АБ**) ' + str("%.2f" % data['stats']['a']['kpd']) + '; '
             except:
                 base_text = u'{0.author.mention}, не нашёл я тебя в ThunderSkill.' \
-                            u' Имя в дискорде должно соответствовать шаблону.'
+                            u' Псевдоним на сервере должен повторять ник в игре ' \
+                            u'и быть заключён в треугольные скобки. ' \
+                            u'Например: \n `<pupkin>`, ' \
+                            u'`<pupkin> (Василий)`, ' \
+                            u'`[AFI]<pupkin>(Василий)` и т.д.'
         else:
             for user in message.mentions:
                 try:
-                    name = user.display_name.split('*', 1)[0]
+                    s = user.display_name
+                    name = s[s.find("<") + 1:s.find(">")]
                     base_url = "http://thunderskill.com/ru/stat/"
                     url = "http://thunderskill.com/ru/stat/" + name + "/export/json"
                     with urllib.request.urlopen(url) as url_link:
@@ -84,10 +93,13 @@ async def on_message(message):
                         base_text = base_text + text
                 except:
                     text = user.mention + ' | ' + u' не нашёл я такого в ThunderSkill.' \
-                                                  u' Имя в дискорде должно соответствовать шаблону.'
+                                                  u' Псевдоним на сервере должен повторять ник в игре ' \
+                                                  u'и быть заключён в треугольные скобки. ' \
+                                                  u'Например: \n `<pupkin>`, ' \
+                                                  u'`<pupkin> (Василий)`, ' \
+                                                  u'`[AFI]<pupkin>(Василий)` и т.д.'
                     base_text = base_text + text + '\n' + '\n'
         msg = base_text.format(message)
-        # print(str(message.server.id))
         await client.send_message(message.channel, msg)
     elif message.content.startswith(u'!полк'):
         discord_server_id = str(message.server.id)
@@ -112,10 +124,11 @@ async def on_message(message):
                            + '\n' \
                            + u'Подробнее - ' + squad_url
             except:
-                text = u'{0.author.mention}, Адрес полка в ThunderSkill указан не верно.'
+                text = (u'Для этого сервера Discord не указан полк WarThunder. '
+                        u'Владелец сервера должен дать мне команду '
+                        u'`!адрес:http://адрес-полка-в-ThunderSkill`')
         conn.close()
         msg = text.format(message)
-        # print(str(message.server.id))
         await client.send_message(message.channel, msg)
 
 client.run(settings.BOT_TOKEN)
