@@ -1,3 +1,4 @@
+#!/bin/sh
 import discord
 import urllib.request
 import json
