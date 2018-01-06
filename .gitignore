@@ -2,5 +2,4 @@ settings.py
 .idea
 *.db
 *.pyc
-*.sqlite3
 __pycache__/
