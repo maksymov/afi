@@ -1,21 +1,21 @@
-"""afi URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.11/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
+# -*- coding: utf-8 -*-
 from django.conf.urls import url
 from django.contrib import admin
+import core.views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+]
+
+urlpatterns += [
+    url(r'^player_rank_add/(?P<discord_server_id>\w+)/(?P<discord_id>\w+)/(?P<rank_title>\w+)/$', core.views.player_rank_add),
+    url(r'^player_rank_delete/(?P<discord_server_id>\w+)/(?P<discord_id>\w+)/(?P<rank_title>\w+)/$', core.views.player_rank_delete),
+    url(r'^player_award_add/(?P<discord_server_id>\w+)/(?P<discord_id>\w+)/(?P<award_title>\w+)/$', core.views.player_award_add),
+    url(r'^player_award_delete/(?P<discord_server_id>\w+)/(?P<discord_id>\w+)/(?P<award_title>\w+)/$', core.views.player_award_delete),
+    url(r'^player_awards/(?P<discord_server_id>\w+)/(?P<discord_id>\w+)/$', core.views.player_awards),
+    url(r'^player_ranks/(?P<discord_server_id>\w+)/(?P<discord_id>\w+)/$', core.views.player_ranks),
+    url(r'^award_create/$', core.views.award_create),
+    url(r'^award_delete/$', core.views.award_delete),
+    url(r'^rank_create/$', core.views.rank_create),
+    url(r'^rank_delete/$', core.views.rank_delete),
 ]
