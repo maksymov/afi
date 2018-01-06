@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
+
 # from django.shortcuts import render
 import json
 from django.db.models import Count
@@ -56,7 +58,7 @@ def player_award_add(request, discord_server_id, discord_id, award_title):
     try:
         award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
     except:
-        data = json.dumps({'status': 'err', 'text': u'Нет такой награды'})
+        data = json.dumps({'status': 'err', 'text': u'Нет такой награды', 'tag': ""})
         return HttpResponse(data)
     player_award = PlayerAward.objects.create(player=player, award=award)
     data = json.dumps({'status': 'ok', 'text': u"Награда вручена!", 'tag': award.tag})
@@ -97,7 +99,7 @@ def player_awards(request, discord_server_id, discord_id):
     awards = PlayerAward.objects.filter(player=player).values('award__tag').annotate(Count('id'))
     awards_str = ""
     for i in awards:
-        awards_str += str('`' + i['award__tag'] + '`' + str(i['id__count']) + ' | ')
+        awards_str += '`' + i['award__tag'] + '`' + str(i['id__count']) + ' | '
     data = json.dumps({'status': 'ok', 'text': awards_str})
     return HttpResponse(data)
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import discord
 import urllib.request
 import json
