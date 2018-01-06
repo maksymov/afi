@@ -6,3 +6,4 @@ settings.py
 __pycache__/
 pids/
 uwsgi.ini
+logs/
