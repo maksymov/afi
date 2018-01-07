@@ -8,3 +8,4 @@ pids/
 uwsgi.ini
 logs/
 discord_bot/bot_settings.py
+.vscode
