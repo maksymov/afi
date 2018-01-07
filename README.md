@@ -1,7 +1,5 @@
 # AFI - Discord-бот, который любит WarThunder
 
-<!-- TOC -->
-
 - [AFI - Discord-бот, который любит WarThunder](#afi---discord-%D0%B1%D0%BE%D1%82-%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D1%8B%D0%B9-%D0%BB%D1%8E%D0%B1%D0%B8%D1%82-warthunder)
     - [1. РОЛИ И ПРАВА](#1-%D1%80%D0%BE%D0%BB%D0%B8-%D0%B8-%D0%BF%D1%80%D0%B0%D0%B2%D0%B0)
     - [2. ТРЕБОВАНИЯ К НИКАМ](#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC)
@@ -13,8 +11,6 @@
             - [3.2.3. Создание награды](#323-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BD%D0%B0%D0%B3%D1%80%D0%B0%D0%B4%D1%8B)
             - [3.2.4. Вручение и возврат наград](#324-%D0%B2%D1%80%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8-%D0%B2%D0%BE%D0%B7%D0%B2%D1%80%D0%B0%D1%82-%D0%BD%D0%B0%D0%B3%D1%80%D0%B0%D0%B4)
     - [4. УСТАНОВКА БОТА НА СВОЙ СЕРВЕР](#4-%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D0%B1%D0%BE%D1%82%D0%B0-%D0%BD%D0%B0-%D1%81%D0%B2%D0%BE%D0%B9-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)
-
-<!-- /TOC -->
 
 Если у вас есть сервер Discord, то пригласить бота к себе на сервер можно по следующей ссылке:
 [Бот AFI](https://discordapp.com/oauth2/authorize?client_id=304296578989162496&scope=bot&permissions=134728768)
