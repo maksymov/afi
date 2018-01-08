@@ -22,17 +22,21 @@ async def on_message(message):
 
     Функция запускает бота, следит какие команды отправляются
     боту и возвращает ответ в канал дискорда.
+
+    Отслеживаемые команды:
+        !статка
+        !звание+/!звание-
+        !награда+/!награда-
+        !добавить-награду-в-базу-данных
+        !удалить-награду-из-базы-данных
+        !добавить-звание-в-базу-данных
+        !удалить-звание-из-базы-данных
     """
     discord_server_id = message.server.id
     afi = client.user
     if afi in message.mentions:
-        text = u'{0.author.mention}, запоминай: \n' \
-               u'`!статка` - показываю твою статку с ThunderSkill;\n' \
-               u'`!статка @<pupkin>` - покажу Васькину стату;\n' \
-               u'`!полк` - покажу стату полка;\n' \
-               u'`!адрес:http://адрес_полка_в_thunderskill` - ' \
-               u'запоминаю, откуда брать статку полка (только владелец сервера)\n' \
-               u'Пока всё, но я учусь ;)'
+        text = u'{0.author.mention}, вся инфа про меня здесь: '\
+               u'https://github.com/maksymov/afi/blob/master/README.md'
         msg = text.format(message)
         await client.send_message(message.channel, msg)
     # ===========================
