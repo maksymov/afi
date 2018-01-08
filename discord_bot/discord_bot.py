@@ -8,6 +8,14 @@ import bot_settings
 client = discord.Client()
 
 
+def check_rights(roles):
+    rights = 'no'
+    for role in roles:
+        if role.name == u'[AFI] Звания и награды':
+            rights = 'yes'
+    return rights
+
+
 @client.event
 async def on_message(message):
     """Отслеживание команд
@@ -70,150 +78,138 @@ async def on_message(message):
     # ПРИСВОЕНИЕ ЗВАНИЯ ИГРОКУ
     elif message.content.startswith(u'!звание+') or message.content.startswith(u'!звание-'):
         # проверяю наличие права на вручение (роль '[AFI] Звания и награды')
-        rights = 'no'
-        for role in message.author.roles:
-            if role.name == u'[AFI] Звания и награды':
-                rights = 'yes'
+        rights = check_rights(message.author.roles)
         if rights == 'no':
             msg = u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
             await client.send_message(message.channel, msg)
-        msg = ""
-        for user in message.mentions:
-            discord_id = user.id
-            message_text = message.clean_content
-            rank = message_text[message_text.find("(") + 1:message_text.find(")")]
-            if message.content.startswith(u'!звание+'):
-                base_url = bot_settings.DJANGO_URL + "/player_rank_add/"
-            else:
-                base_url = bot_settings.DJANGO_URL + "/player_rank_delete/"
-            url = base_url + discord_server_id + "/" + discord_id + "/" + urllib.parse.quote_plus(rank)
-            with urllib.request.urlopen(url) as url:
-                response = json.loads(url.read().decode())['text']
-            msg += user.mention + ': ' + response + '\n'
-        await client.send_message(message.channel, msg)
+        else:
+            msg = ""
+            for user in message.mentions:
+                discord_id = user.id
+                message_text = message.clean_content
+                rank = message_text[message_text.find("(") + 1:message_text.find(")")]
+                if message.content.startswith(u'!звание+'):
+                    base_url = bot_settings.DJANGO_URL + "/player_rank_add/"
+                else:
+                    base_url = bot_settings.DJANGO_URL + "/player_rank_delete/"
+                url = base_url + discord_server_id + "/" + discord_id + "/" + urllib.parse.quote_plus(rank)
+                with urllib.request.urlopen(url) as url:
+                    response = json.loads(url.read().decode())['text']
+                msg += user.mention + ': ' + response + '\n'
+            await client.send_message(message.channel, msg)
     # =======================
     # ВРУЧЕНИЕ НАГРАДЫ ИГРОКУ
     elif message.content.startswith(u'!награда+') or message.content.startswith(u'!награда-'):
         # проверяю наличие права на вручение (роль '[AFI] Звания и награды')
-        rights = 'no'
-        for role in message.author.roles:
-            if role.name == u'[AFI] Звания и награды':
-                rights = 'yes'
+        rights = check_rights(message.author.roles)
         if rights == 'no':
             msg = u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
             await client.send_message(message.channel, msg)
-        msg = ""
-        for user in message.mentions:
-            discord_id = user.id
-            message_text = message.clean_content
-            award = message_text[message_text.find("(") + 1:message_text.find(")")]
-            if message.content.startswith(u'!награда+'):
-                base_url = bot_settings.DJANGO_URL + "/player_award_add/"
-            else:
-                base_url = bot_settings.DJANGO_URL + "/player_award_delete/"
-            url = base_url + discord_server_id + "/" + discord_id + "/" + urllib.parse.quote_plus(award)
-            with urllib.request.urlopen(url) as url:
-                response = json.loads(url.read().decode())
-            msg += user.mention + ': ' + response['text']
-            tag = response['tag']
-            try:
+        else:
+            msg = ""
+            for user in message.mentions:
+                discord_id = user.id
+                message_text = message.clean_content
+                award = message_text[message_text.find("(") + 1:message_text.find(")")]
                 if message.content.startswith(u'!награда+'):
-                    nickname = tag + user.display_name.replace(tag, "")
+                    base_url = bot_settings.DJANGO_URL + "/player_award_add/"
                 else:
-                    nickname = user.display_name.replace(tag, "")
-                await client.change_nickname(user, nickname)
-            except:
-                msg += " (изменить ник не могу, т.к. недостаточно прав)"
-            msg += '\n'
-        await client.send_message(message.channel, msg)
+                    base_url = bot_settings.DJANGO_URL + "/player_award_delete/"
+                url = base_url + discord_server_id + "/" + discord_id + "/" + urllib.parse.quote_plus(award)
+                with urllib.request.urlopen(url) as url:
+                    response = json.loads(url.read().decode())
+                msg += user.mention + ': ' + response['text']
+                tag = response['tag']
+                try:
+                    if message.content.startswith(u'!награда+'):
+                        nickname = tag + user.display_name.replace(tag, "")
+                    else:
+                        nickname = user.display_name.replace(tag, "")
+                    await client.change_nickname(user, nickname)
+                except:
+                    msg += " (изменить ник не могу, т.к. недостаточно прав)"
+                msg += '\n'
+            await client.send_message(message.channel, msg)
     # =========================
     # СОЗДАНИЕ ПОЛКОВОЙ НАГРАДЫ
     elif message.content.startswith(u'!добавить-награду-в-базу-данных'):
         message_text = message.clean_content
-        rights = 'no'
-        for role in message.author.roles:
-            if role.name == u'[AFI] Звания и награды':
-                rights = 'yes'
+        rights = check_rights(message.author.roles)
         if rights == 'no':
             msg = u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
             await client.send_message(message.channel, msg)
-        msg = ""
-        tag = message_text[message_text.find("[") + 1:message_text.find("]")]
-        title = message_text[message_text.find("(") + 1:message_text.find(")")]
-        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-        duration = message_text[message_text.find("{") + 1:message_text.find("}")]
-        url = bot_settings.DJANGO_URL + "/award_create/?" \
-              + "discord_server_id=" + discord_server_id \
-              + "&tag=" + urllib.parse.quote_plus(tag) \
-              + "&title=" + urllib.parse.quote_plus(title) \
-              + "&desc=" + urllib.parse.quote_plus(desc) \
-              + "&duration=" + duration
-        with urllib.request.urlopen(url) as url:
-            response = json.loads(url.read().decode())
-        msg = response['text']
-        await client.send_message(message.channel, msg)
+        else:
+            msg = ""
+            tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+            title = message_text[message_text.find("(") + 1:message_text.find(")")]
+            desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+            duration = message_text[message_text.find("{") + 1:message_text.find("}")]
+            url = bot_settings.DJANGO_URL + "/award_create/?" \
+                  + "discord_server_id=" + discord_server_id \
+                  + "&tag=" + urllib.parse.quote_plus(tag) \
+                  + "&title=" + urllib.parse.quote_plus(title) \
+                  + "&desc=" + urllib.parse.quote_plus(desc) \
+                  + "&duration=" + duration
+            with urllib.request.urlopen(url) as url:
+                response = json.loads(url.read().decode())
+            msg = response['text']
+            await client.send_message(message.channel, msg)
     # =========================
     # УДАЛЕНИЕ ПОЛКОВОЙ НАГРАДЫ
     elif message.content.startswith(u'!удалить-награду-из-базы-данных'):
         message_text = message.clean_content
-        rights = 'no'
-        for role in message.author.roles:
-            if role.name == u'[AFI] Звания и награды':
-                rights = 'yes'
+        rights = check_rights(message.author.roles)
         if rights == 'no':
             msg = u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
             await client.send_message(message.channel, msg)
-        title = message_text[message_text.find("(") + 1:message_text.find(")")]
-        url = bot_settings.DJANGO_URL + "/award_delete/?" \
-              + "discord_server_id=" + discord_server_id \
-              + "&title=" + urllib.parse.quote_plus(title)
-        with urllib.request.urlopen(url) as url:
-            response = json.loads(url.read().decode())
-        msg = response['text']
-        await client.send_message(message.channel, msg)
+        else:
+            title = message_text[message_text.find("(") + 1:message_text.find(")")]
+            url = bot_settings.DJANGO_URL + "/award_delete/?" \
+                  + "discord_server_id=" + discord_server_id \
+                  + "&title=" + urllib.parse.quote_plus(title)
+            with urllib.request.urlopen(url) as url:
+                response = json.loads(url.read().decode())
+            msg = response['text']
+            await client.send_message(message.channel, msg)
     # =========================
     # СОЗДАНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(u'!добавить-звание-в-базу-данных'):
         message_text = message.clean_content
-        rights = 'no'
-        for role in message.author.roles:
-            if role.name == u'[AFI] Звания и награды':
-                rights = 'yes'
+        rights = check_rights(message.author.roles)
         if rights == 'no':
             msg = u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
             await client.send_message(message.channel, msg)
-        msg = ""
-        tag = message_text[message_text.find("[") + 1:message_text.find("]")]
-        title = message_text[message_text.find("(") + 1:message_text.find(")")]
-        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-        url = bot_settings.DJANGO_URL + "/rank_create/?" \
-              + "discord_server_id=" + discord_server_id \
-              + "&tag=" + urllib.parse.quote_plus(tag) \
-              + "&title=" + urllib.parse.quote_plus(title) \
-              + "&desc=" + urllib.parse.quote_plus(desc)
-        with urllib.request.urlopen(url) as url:
-            response = json.loads(url.read().decode())
-        msg = response['text']
-        await client.send_message(message.channel, msg)
+        else:
+            msg = ""
+            tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+            title = message_text[message_text.find("(") + 1:message_text.find(")")]
+            desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+            url = bot_settings.DJANGO_URL + "/rank_create/?" \
+                  + "discord_server_id=" + discord_server_id \
+                  + "&tag=" + urllib.parse.quote_plus(tag) \
+                  + "&title=" + urllib.parse.quote_plus(title) \
+                  + "&desc=" + urllib.parse.quote_plus(desc)
+            with urllib.request.urlopen(url) as url:
+                response = json.loads(url.read().decode())
+            msg = response['text']
+            await client.send_message(message.channel, msg)
     # =========================
     # УДАЛЕНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(u'!удалить-звание-из-базы-данных'):
         message_text = message.clean_content
-        rights = 'no'
-        for role in message.author.roles:
-            if role.name == u'[AFI] Звания и награды':
-                rights = 'yes'
+        rights = check_rights(message.author.roles)
         if rights == 'no':
             msg = u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
             await client.send_message(message.channel, msg)
-        title = message_text[message_text.find("(") + 1:message_text.find(")")]
-        url = bot_settings.DJANGO_URL + "/rank_delete/?" \
-              + "discord_server_id=" + discord_server_id \
-              + "&title=" + urllib.parse.quote_plus(title)
-        with urllib.request.urlopen(url) as url:
-            response = json.loads(url.read().decode())
-        msg = response['text']
-        await client.send_message(message.channel, msg)
+        else:
+            title = message_text[message_text.find("(") + 1:message_text.find(")")]
+            url = bot_settings.DJANGO_URL + "/rank_delete/?" \
+                  + "discord_server_id=" + discord_server_id \
+                  + "&title=" + urllib.parse.quote_plus(title)
+            with urllib.request.urlopen(url) as url:
+                response = json.loads(url.read().decode())
+            msg = response['text']
+            await client.send_message(message.channel, msg)
     #elif message.content.startswith(u'адрес:')\
     #        or message.content.startswith(u'!адрес:'):
     #    squad_url = message.content[7:]
