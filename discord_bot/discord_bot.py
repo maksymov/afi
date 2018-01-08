@@ -35,8 +35,11 @@ async def on_message(message):
     discord_server_id = message.server.id
     afi = client.user
     if afi in message.mentions:
+        servers = client.servers
+        num = len(servers)
         text = u'{0.author.mention}, вся инфа про меня здесь: '\
-               u'https://github.com/maksymov/afi/blob/master/README.md'
+               + u'https://github.com/maksymov/afi/blob/master/README.md \n' \
+               + u'Работаю на ' + str(num) + u'серверах!'
         msg = text.format(message)
         await client.send_message(message.channel, msg)
     # ===========================
