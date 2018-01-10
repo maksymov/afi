@@ -18,7 +18,7 @@
 Если у вас есть сервер Discord, то пригласить бота к себе на сервер можно по следующей ссылке:
 [Бот AFI](https://discordapp.com/oauth2/authorize?client_id=304296578989162496&scope=bot&permissions=134728768)
 
-Все вопросы касательно бота можно задать здесь -> https://discord.gg/Gqza8FD
+[Discord-канал тех. поддержки](https://discord.gg/Gqza8FD)
 
 ## 1. РОЛИ И ПРАВА
 

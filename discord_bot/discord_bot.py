@@ -39,6 +39,7 @@ async def on_message(message):
         num = len(servers)
         text = u'{0.author.mention}, вся инфа про меня здесь: '\
                + u'<https://github.com/maksymov/afi/blob/master/README.md> \n' \
+               + u'Discord-сервер тех. поддержки: <https://discord.gg/Gqza8FD> \n' \
                + u'Работаю на ' + str(num) + u' серверах!'
         msg = text.format(message)
         await client.send_message(message.channel, msg)
