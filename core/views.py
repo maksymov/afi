@@ -108,7 +108,7 @@ def award_create(request):
     """Создание новой награды"""
     if Award.objects.filter(discord_server_id=request.GET['discord_server_id']).filter(
             Q(tag=request.GET['tag']) | Q(title=request.GET['title'])).exists():
-        data = json.dumps({'status': 'err', 'text': u"Названия и значки наград не должны повторяться"})
+        data = json.dumps({'status': 'err', 'text': u"Такая награда уже есть. Названия и значки наград не должны повторяться"})
         return HttpResponse(data)
     Award.objects.create(discord_server_id=request.GET['discord_server_id'],
                          tag=request.GET['tag'],
@@ -135,7 +135,7 @@ def rank_create(request):
     """Создание нового звания"""
     if Rank.objects.filter(discord_server_id=request.GET['discord_server_id']).filter(
             Q(tag=request.GET['tag']) | Q(title=request.GET['title'])).exists():
-        data = json.dumps({'status': 'err', 'text': u"Названия и значки званий не должны повторяться"})
+        data = json.dumps({'status': 'err', 'text': u"Такое звание уже есть. Названия и значки званий не должны повторяться"})
         return HttpResponse(data)
     Rank.objects.create(discord_server_id=request.GET['discord_server_id'],
                         tag=request.GET['tag'],
