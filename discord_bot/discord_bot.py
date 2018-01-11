@@ -130,10 +130,9 @@ async def on_message(message):
                 tag = response['tag']
                 try:
                     if message.content.startswith(u'!награда+'):
-                        nickname = tag + user.display_name.replace(tag, "")
-                        print(tag, user.display_name, nickname)
+                        nickname = tag + user.display_name.strip(tag)
                     else:
-                        nickname = user.display_name.replace(tag, "")
+                        nickname = user.display_name.strip(tag)
                     await client.change_nickname(user, nickname)
                 except:
                     msg += " (изменить ник не могу, т.к. недостаточно прав)"
