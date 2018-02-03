@@ -60,6 +60,7 @@ class Player(models.Model):
     """Игроки"""
     discord_server_id = models.CharField(max_length=255)
     discord_id = models.CharField(max_length=255)
+    lang = models.CharField(max_length=255, blank=True)
 
 
 class PlayerRank(models.Model):

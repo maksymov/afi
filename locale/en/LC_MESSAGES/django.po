@@ -1,0 +1,157 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# vlad <maksymov.vlad@gmail.com>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-03 09:20+0200\n"
+"PO-Revision-Date: 2018-02-03 10:50+0200\n"
+"Last-Translator: vlad <maksymov.vlad@gmail.com>\n"
+"Language-Team: английский <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.7\n"
+
+#: core/views.py:43
+msgid "Да хоть по-китайски"
+msgstr "Ok, English!"
+
+#: core/views.py:45
+msgid "Я знаю только русский и английский"
+msgstr "I speak Russian and English only"
+
+#: core/views.py:63
+msgid "В базе данных полка ещё не созданы звания. Создайте их!"
+msgstr "Rank database is empty. Create ranks first!"
+
+#: core/views.py:75
+msgid "В базе данных полка ещё не созданы награды. Создайте их!"
+msgstr "Award database is empty. Create awards first!"
+
+#: core/views.py:86 core/views.py:116
+msgid "Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
+msgstr ""
+
+#: core/views.py:99 core/views.py:129 core/views.py:240
+msgid "Нет такого звания"
+msgstr "There is no such Rank"
+
+#: core/views.py:103
+msgid " Звание уже было присвоено ранее"
+msgstr " The Rank has already been assigned earlier"
+
+#: core/views.py:106
+msgid "Звание присвоено!"
+msgstr "Rank assigned!"
+
+#: core/views.py:133
+msgid "Игрок разжалован в звании!"
+msgstr "Rank deassigned!"
+
+#: core/views.py:135
+msgid "Звание ещё не присвоено игроку"
+msgstr "The Rank is not yet assigned to the player"
+
+#: core/views.py:148 core/views.py:162 core/views.py:215
+msgid "Нет такой награды"
+msgstr "There is no such Award"
+
+#: core/views.py:151
+msgid "Награда вручена!"
+msgstr "Award assigned!"
+
+#: core/views.py:166
+msgid "Награда игрока удалена!"
+msgstr "Award deassigned!"
+
+#: core/views.py:168
+msgid "У игрока нет такой награды"
+msgstr "The player does not have such a award"
+
+#: core/views.py:196
+msgid "Такая награда уже есть. Названия и значки наград не должны повторяться"
+msgstr "Such Award already exists. Names and tags should not be repeated"
+
+#: core/views.py:203
+msgid "Новая награда добавлена в базу данных полка"
+msgstr "New Award was created in a squad's database"
+
+#: core/views.py:212
+msgid "Награда удалена из базы данных полка"
+msgstr "Award was deleted from squad's database"
+
+#: core/views.py:223
+msgid "Такое звание уже есть. Названия и значки званий не должны повторяться"
+msgstr ""
+"This Rank already exists. Names and tags of Ranks should not be repeated"
+
+#: core/views.py:229
+msgid "Новое звание добавлено в базу данных полка"
+msgstr "New Rank was created in a squad's database"
+
+#: core/views.py:238
+msgid "Звание удалено из базы данных полка"
+msgstr "Rank was deleted from squad's database"
+
+#: core/views.py:258
+msgid "(**АБ**) "
+msgstr "(**A**) "
+
+#: core/views.py:259
+msgid "(**РБ**) "
+msgstr "(**R**) "
+
+#: core/views.py:260
+msgid "(**СБ**) "
+msgstr "(**S**) "
+
+#: core/views.py:262
+msgid " не нашёл я такого в ThunderSkill."
+msgstr " I can't find you on ThunderSkill."
+
+#: core/views.py:263
+msgid " Псевдоним на сервере должен повторять ник в игре "
+msgstr " The alias on the server should repeat the nickname in the game "
+
+#: core/views.py:264
+msgid ""
+"и быть заключён в треугольные скобки. Например: \n"
+" `<pupkin>`, "
+msgstr ""
+"and be enclosed in triangular brackets. For example:\n"
+" `<pupkin>`, "
+
+#: core/views.py:265
+msgid "`<pupkin> (Василий)`, `[AFI]<pupkin>(Василий)` и т.д."
+msgstr "`<pupkin> (Vasiliy)`, `[AFI]<pupkin>(Vasiliy)` etc."
+
+#: core/views.py:268
+msgid "**Звания:** "
+msgstr "**Ranks:** "
+
+#: core/views.py:271
+msgid " **Награды:** "
+msgstr " **Awards:** "
+
+#: discord_bot.py:51
+msgid "вся инфа про меня здесь: "
+msgstr "more info here: "
+
+#: discord_bot.py:53
+msgid "Discord-сервер тех. поддержки:"
+msgstr "AFI Support (Discord Server):"
+
+#: discord_bot.py:54
+msgid "Работаю на "
+msgstr "Wirking on "
+
+#: discord_bot.py:54
+msgid " серверах!"
+msgstr " servers!"
