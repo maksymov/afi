@@ -7,5 +7,5 @@ __pycache__/
 pids/
 uwsgi.ini
 logs/
-discord_bot/bot_settings.py
+bot_settings.py
 .vscode
