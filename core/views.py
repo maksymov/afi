@@ -86,11 +86,11 @@ def player_rank_add(message):
         msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
         return msg
     discord_server_id = message.server.id
-    discord_id = user.id
     message_text = message.clean_content
     rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
     msg = ""
     for user in message.mentions:
+        discord_id = user.id
         player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
                                                        discord_id=discord_id)
         try:
@@ -116,11 +116,11 @@ def player_rank_remove(message):
         msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
         return msg
     discord_server_id = message.server.id
-    discord_id = user.id
     message_text = message.clean_content
     rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
     msg = ""
     for user in message.mentions:
+        discord_id = user.id
         player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
                                                        discord_id=discord_id)
         try:
@@ -138,35 +138,59 @@ def player_rank_remove(message):
     return msg
 
 
-def player_award_add(request, discord_server_id, discord_id, award_title):
+def player_award_add(message):
     """Присвоение наград игрокам"""
-    player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                   discord_id=discord_id)
-    try:
-        award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
-    except:
-        data = json.dumps({'status': 'err', 'text': _(u'Нет такой награды'), 'tag': ""})
-        return HttpResponse(data)
-    player_award = PlayerAward.objects.create(player=player, award=award)
-    data = json.dumps({'status': 'ok', 'text': _(u"Награда вручена!"), 'tag': award.tag})
-    return HttpResponse(data)
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
+    msg = ""
+    for user in message.mentions:
+        discord_id = user.id
+        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+                                                       discord_id=discord_id)
+        try:
+            award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
+        except:
+            msg = _(u'Нет такой награды')
+            return msg
+        player_award = PlayerAward.objects.create(player=player, award=award)
+        msg += user.mention + _(u"Награда вручена!")
+        msg += '\n'
+    return msg
 
 
-def player_award_delete(request, discord_server_id, discord_id, award_title):
+def player_award_delete(message):
     """Удаление наград игроков"""
-    player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                   discord_id=discord_id)
-    try:
-        award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
-    except:
-        data = json.dumps({'status': 'err', 'text': _(u'Нет такой награды')})
-        return HttpResponse(data)
-    try:
-        player_award = PlayerAward.objects.filter(player=player, award=award).order_by('-date_from')[0].delete()
-        data = json.dumps({'status': 'ok', 'text': _(u"Награда игрока удалена!"), 'tag': award.tag})
-    except:
-        data = json.dumps({'status': 'err', 'text': _(u'У игрока нет такой награды'), 'tag': ''})
-    return HttpResponse(data)
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
+    msg = ""
+    for user in message.mentions:
+        discord_id = user.id
+        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+                                                       discord_id=discord_id)
+        try:
+            award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
+        except:
+            msg = _(u'Нет такой награды')
+            return msg
+        try:
+            player_award = PlayerAward.objects.filter(player=player, award=award).order_by('-date_from')[0].delete()
+            msg += user.mention + _(u"Награда игрока удалена!")
+        except:
+            msg += user.mention + _(u'У игрока нет такой награды')
+        msg += '\n'
+    return msg
 
 
 def player_ranks(discord_server_id, discord_id):
@@ -198,7 +222,6 @@ def award_create(message):
         return msg
     discord_server_id = message.server.id
     message_text = message.clean_content
-    msg = ""
     tag = message_text[message_text.find("[") + 1:message_text.find("]")]
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     desc = message_text[message_text.find("<") + 1:message_text.find(">")]
@@ -216,41 +239,66 @@ def award_create(message):
     return msg
 
 
-def award_delete(request):
+def award_delete(message):
     """Удаление награды"""
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    title = message_text[message_text.find("(") + 1:message_text.find(")")]
     try:
-        award = Award.objects.get(discord_server_id=request.GET['discord_server_id'],
-                title=request.GET['title'])
-        data = json.dumps({'status': 'ok', 'text': _(u"Награда удалена из базы данных полка"), 'tag': award.tag})
+        award = Award.objects.get(discord_server_id=discord_server_id, title=title)
+        msg = _(u"Награда удалена из базы данных полка")
         award.delete()
     except:
-        data = json.dumps({'status': 'err', 'text': _(u"Нет такой награды")})
-    return HttpResponse(data)
+        msg = _(u"Нет такой награды")
+    return msg
 
 
 def rank_create(request):
     """Создание нового звания"""
-    if Rank.objects.filter(discord_server_id=request.GET['discord_server_id']).filter(
-            Q(tag=request.GET['tag']) | Q(title=request.GET['title'])).exists():
-        data = json.dumps({'status': 'err', 'text': _(u"Такое звание уже есть. Названия и значки званий не должны повторяться")})
-        return HttpResponse(data)
-    Rank.objects.create(discord_server_id=request.GET['discord_server_id'],
-                        tag=request.GET['tag'],
-                        title=request.GET['title'],
-                        desc=request.GET['desc'])
-    data = json.dumps({'status': 'ok', 'text': _(u"Новое звание добавлено в базу данных полка")})
-    return HttpResponse(data)
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+    title = message_text[message_text.find("(") + 1:message_text.find(")")]
+    desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+    if Rank.objects.filter(discord_server_id=discord_server_id).filter(
+            Q(tag=tag) | Q(title=title)).exists():
+        msg = _(u"Такое звание уже есть. Названия и значки званий не должны повторяться")
+        return msg
+    Rank.objects.create(discord_server_id=discord_server_id,
+                        tag=tag,
+                        title=title,
+                        desc=desc)
+    msg = _(u"Новое звание добавлено в базу данных полка")
+    return msg
 
 
 def rank_delete(request):
     """Удаление звания"""
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    title = message_text[message_text.find("(") + 1:message_text.find(")")]
     try:
-        Rank.objects.get(discord_server_id=request.GET['discord_server_id'],
-                          title=request.GET['title']).delete()
-        data = json.dumps({'status': 'ok', 'text': _(u"Звание удалено из базы данных полка")})
+        Rank.objects.get(discord_server_id=discord_server_id,
+                title=title).delete()
+        msg = _(u"Звание удалено из базы данных полка")
     except:
-        data = json.dumps({'status': 'err', 'text': _(u"Нет такого звания")})
-    return HttpResponse(data)
+        msg = _(u"Нет такого звания")
+    return msg
 
 
 def player_stat(message):

@@ -9,3 +9,4 @@ uwsgi.ini
 logs/
 bot_settings.py
 .vscode
+.env
