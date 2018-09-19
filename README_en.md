@@ -32,3 +32,21 @@ Additionally, in the server settings you need:
 1. Create a role with the title "[AFI] Ranks and awards"
 2. Drag the **AFI** role to the very top;
 
+## 2. REQUIREMENTS TO NIKCNAMES
+
+Nicknames on Discord server must include War Thunder usernames surrounded by triangular brackets. For example, if the War Thunder username is `smith`, then Discord nickname must be` <smith> `,` <smith> (Will) `,` [AFI] <smith> (Will) `, etc. Without this, game statistics with ThunderSkill will not be given.
+
+## 3. WHAT AFI CAN DO
+
+### 3.1. Show statistic
+
+To view your game statistics with ThunderSkill you need to send the command `!stat` to any text channel where the bot has access, . If your nickname corresponds to item 2, then AFI will get your statistics on ThunderSkill and return it back to the chat.
+
+![user stat](static/img/player_stat.png)
+
+You can also can get the statistics of one or several participants of the discord server by mentioning them after the command `!stat`, for example:
+
+![users stat](static/img/multi_player_stat.png)
+
+The statistics include ranks and awards given to players in the squad.
+
