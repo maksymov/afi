@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 # from django.shortcuts import render
 import json
+import re
 import urllib.request
 from django.db.models import Count
 from django.db.models import Q
@@ -149,19 +150,31 @@ def player_award_add(message):
     message_text = message.clean_content
     award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
     msg = ""
+    users = []
+    tag_list = Award.objects.filter(
+        discord_server_id=discord_server_id,
+        ).values_list('tag', flat=True)
+    tags = '[' + ''.join(tag_list) + ']'
     for user in message.mentions:
         discord_id = user.id
-        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                       discord_id=discord_id)
+        player, created = Player.objects.get_or_create(
+            discord_server_id=discord_server_id,
+            discord_id=discord_id
+            )
         try:
-            award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
+            award = Award.objects.get(
+                discord_server_id=discord_server_id,
+                title=award_title
+                )
+            nickname = award.tag + re.sub(tags, '', user.display_name)
+            users.append({'user': user, 'nickname': nickname})
         except:
             msg = _(u'Нет такой награды')
             return msg
         player_award = PlayerAward.objects.create(player=player, award=award)
         msg += user.mention + _(u"Награда вручена!")
         msg += '\n'
-    return msg
+    return msg, users
 
 
 def player_award_delete(message):
@@ -175,12 +188,19 @@ def player_award_delete(message):
     message_text = message.clean_content
     award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
     msg = ""
+    users = []
+    tag_list = Award.objects.filter(
+        discord_server_id=discord_server_id,
+        ).values_list('tag', flat=True)
+    tags = '[' + ''.join(tag_list) + ']'
     for user in message.mentions:
         discord_id = user.id
         player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
                                                        discord_id=discord_id)
         try:
             award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
+            nickname = re.sub(tags, '', user.display_name)
+            users.append({'user': user, 'nickname': nickname})
         except:
             msg = _(u'Нет такой награды')
             return msg
@@ -190,7 +210,7 @@ def player_award_delete(message):
         except:
             msg += user.mention + _(u'У игрока нет такой награды')
         msg += '\n'
-    return msg
+    return msg, users
 
 
 def player_ranks(discord_server_id, discord_id):

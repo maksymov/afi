@@ -80,12 +80,22 @@ async def on_message(message):
     # =======================
     # ВРУЧЕНИЕ НАГРАДЫ ИГРОКУ
     elif message.content.startswith(tuple(award_add)):
-        msg = player_award_add(message)
+        msg, users = player_award_add(message)
+        for u in users:
+            try:
+                await client.change_nickname(u['user'], u['nickname'])
+            except:
+                pass
         await client.send_message(message.channel, msg)
     # =======================
     # ОТБОР НАГРАДЫ ИГРОКА
-    elif message.content.startswith(tuple(award_add)):
-        msg = player_award_add(message)
+    elif message.content.startswith(tuple(award_remove)):
+        msg, users = player_award_delete(message)
+        for u in users:
+            try:
+                await client.change_nickname(u['user'], u['nickname'])
+            except:
+                pass
         await client.send_message(message.channel, msg)
     # =========================
     # СОЗДАНИЕ ПОЛКОВОЙ НАГРАДЫ
