@@ -332,12 +332,15 @@ def player_stat(message):
             username = user.display_name[user.display_name.find("<") + 1:user.display_name.find(">")]
             base_url = "http://thunderskill.com/ru/stat/"
             url = "http://thunderskill.com/ru/stat/" + username + "/export/json"
-            with urllib.request.urlopen(url) as url_link:
-                data = json.loads(url_link.read().decode())
-                msg += user.mention + ' | ' + base_url + username + '\n' \
-                        + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
-                        + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
-                        + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
+            headers = {}
+            headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0"
+            req = urllib.request.Request(url, headers = headers)
+            json_data = urllib.request.urlopen(req).read()
+            data = json.loads(json_data.decode())
+            msg += user.mention + ' | ' + base_url + username + '\n' \
+                    + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
+                    + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
+                    + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
         except:
             msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
                     + _(u' Псевдоним на сервере должен повторять ник в игре ') \
@@ -350,7 +353,3 @@ def player_stat(message):
         awards = player_awards(discord_server_id, discord_id)
         msg += _(u' **Награды:** ') + awards + '\n' + '\n'
     return msg
-
-
-
-    
