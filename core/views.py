@@ -79,6 +79,23 @@ def squad_awards(message):
     return msg
 
 
+def player_nick(message):
+    """Привязка своего ника"""
+    set_locale(message)
+    discord_server_id = message.server.id
+    user = message.author
+    discord_id = user.id
+    message_text = message.clean_content
+    wt_nick = message_text[message_text.find("(") + 1:message_text.find(")")]
+    player, created = Player.objects.get_or_create(
+            discord_server_id=discord_server_id,
+            discord_id=discord_id,
+            wt_nick=wt_nick
+            )
+    msg = user.mention + '' + _(u'Аккаунт WarThunder привязан!')
+    return msg
+
+
 def player_rank_add(message):
     """Присвоение званий игрокам"""
     set_locale(message)
@@ -342,10 +359,26 @@ def player_stat(message):
                     + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
                     + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
         except:
-            msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
-                    + _(u' Псевдоним на сервере должен повторять ник в игре ') \
-                    + _(u'и быть заключён в треугольные скобки. Например: \n `<pupkin>`, ') \
-                    + _(u'`<pupkin> (Василий)`, `[AFI]<pupkin>(Василий)` и т.д.') + u'\n \n'
+            try:
+                player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+                                                       discord_id=discord_id)
+                username = player.wt_nick
+                base_url = "http://thunderskill.com/ru/stat/"
+                url = "http://thunderskill.com/ru/stat/" + username + "/export/json"
+                headers = {}
+                headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0"
+                req = urllib.request.Request(url, headers = headers)
+                json_data = urllib.request.urlopen(req).read()
+                data = json.loads(json_data.decode())
+                msg += user.mention + ' | ' + base_url + username + '\n' \
+                        + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
+                        + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
+                        + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
+            except:
+                msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
+                        + _(u' Псевдоним на сервере должен повторять ник в игре ') \
+                        + _(u'и быть заключён в треугольные скобки. Например: \n `<pupkin>`, ') \
+                        + _(u'`<pupkin> (Василий)`, `[AFI]<pupkin>(Василий)` и т.д.') + u'\n \n'
         # получаю список званий игрока
         ranks = player_ranks(discord_server_id, discord_id)
         msg += _(u'**Звания:** ') + ranks

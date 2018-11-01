@@ -61,6 +61,7 @@ class Player(models.Model):
     discord_server_id = models.CharField(max_length=255)
     discord_id = models.CharField(max_length=255)
     lang = models.CharField(max_length=255, blank=True)
+    wt_nick = models.CharField(max_length=50, blank=True)
 
 
 class PlayerRank(models.Model):

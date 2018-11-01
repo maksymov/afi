@@ -15,6 +15,7 @@ from django.utils.translation import ugettext as _
 
 client = discord.Client()
 
+nick = [u"!ник", u"!nick"]
 stat = [u"!статка", u"!stat"]
 ranks = [u"!звания", u"!ranks"]
 awards = [u"!награды", u"!awards"]
@@ -49,6 +50,11 @@ async def on_message(message):
     # Выбор языка для сервера
     elif message.content.startswith(u'!lang'):
         msg = set_lang(message)
+        await client.send_message(message.channel, msg)
+    # ======================
+    # ПРИВЯЗКА ИГРОВОГО НИКА
+    elif message.content.startswith(tuple(nick)):
+        msg = player_nick(message)
         await client.send_message(message.channel, msg)
     # ===========================
     # ПОЛУЧЕНИЕ СТАТИСТИКИ ИГРОКА

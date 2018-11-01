@@ -34,7 +34,12 @@ Additionally, in the server settings you need:
 
 ## 2. REQUIREMENTS TO NIKCNAMES
 
-Nicknames on Discord server must include War Thunder usernames surrounded by triangular brackets. For example, if the War Thunder username is `smith`, then Discord nickname must be` <smith> `,` <smith> (Will) `,` [AFI] <smith> (Will) `, etc. Without this, game statistics with ThunderSkill will not be given.
+In order for AFI to find player statistics, one of the following conditions must be met:
+
+1. Nickname on Discord server must include War Thunder username surrounded by triangular brackets. For example, if the War Thunder username is `smith`, then Discord nickname must be` <smith> `,` <smith> (Will) `,` [AFI] <smith> (Will) `, etc.
+2. The player linked his War Thunder username to the Discord account by command `!nick (my_WT_username)`.
+
+Without this, game statistics with ThunderSkill will not be given.
 
 ## 3. WHAT AFI CAN DO
 
