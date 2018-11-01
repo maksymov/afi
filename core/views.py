@@ -90,8 +90,9 @@ def player_nick(message):
     player, created = Player.objects.get_or_create(
             discord_server_id=discord_server_id,
             discord_id=discord_id,
-            wt_nick=wt_nick
             )
+    player.wt_nick = wt_nick
+    player.save()
     msg = user.mention + '' + _(u'Аккаунт WarThunder привязан!')
     return msg
 
