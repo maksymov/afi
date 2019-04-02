@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.utils import translation
 from django.utils.translation import ugettext as _
 from core.models import *
+from datetime import datetime
 
 
 langs = ["ru", "en"]
@@ -387,3 +388,24 @@ def player_stat(message):
         awards = player_awards(discord_server_id, discord_id)
         msg += _(u' **Награды:** ') + awards + '\n' + '\n'
     return msg
+
+
+def get_top(message):
+    set_locale(message)
+    msg = ""
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    try:
+        start = message_text[message_text.find("(") + 1:message_text.find(")")]
+        start_date = datetime.strptime(start, "%Y-%m-%d").date()
+        end = message_text[message_text.find("[") + 1:message_text.find("]")]
+        end_date = datetime.strptime(end, "%Y-%m-%d").date()
+        top_list = Player.objects.filter(
+                discord_server_id=discord_server_id
+            ).annotate(awards=Count('playeraward')).order_by('-awards')
+        for player in top_list:
+            msg += '<@!' + player.discord_id + '> | ' + str(player.awards) + '\n'
+    except:
+        msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
+    return msg
+

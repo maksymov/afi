@@ -27,6 +27,7 @@ create_award_in_database = [u"!добавить-награду-в-базу-да�
 delete_award_from_database = [u"!удалить-награду-из-базы-данных", u"!delete-award-from-database"]
 create_rank_in_database = [u"!добавить-звание-в-базу-данных", u"!create-rank-in-database"]
 delete_rank_from_database = [u"!удалить-звание-из-базы-данных", u"!delete-rank-from-database"]
+top = [u"!топ", u"!top"]
 
 @client.event
 async def on_message(message):
@@ -122,5 +123,10 @@ async def on_message(message):
     # УДАЛЕНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(tuple(delete_rank_from_database)):
         msg = rank_delete(message)
+        await client.send_message(message.channel, msg)
+    # =====================
+    # ТОП ИГРОКОВ ЗА ПЕРИОД
+    elif message.content.startswith(tuple(top)):
+        msg = get_top(message)
         await client.send_message(message.channel, msg)
 client.run(bot_settings.BOT_TOKEN)
