@@ -400,12 +400,15 @@ def get_top(message):
         start_date = datetime.strptime(start, "%Y-%m-%d").date()
         end = message_text[message_text.find("[") + 1:message_text.find("]")]
         end_date = datetime.strptime(end, "%Y-%m-%d").date()
-        top_list = Player.objects.filter(
-                discord_server_id=discord_server_id
-            ).annotate(awards=Count('playeraward')).order_by('-awards')
-        for player in top_list:
-            if player.awards > 0:
-                msg += '<@!' + player.discord_id + '> | ' + str(player.awards) + '\n'
+        players = Player.objects.filter(discord_server_id=discord_server_id)
+        awards = PlayerAward.objects.filter(
+                player__in=players,
+                date_from__gte=start_date,
+                date_from__lte=end_date
+            ).annotate(awards=Count('player')).order_by('player')
+        for player in players:
+            if awards.filter(player=player).count() > 0:
+                msg += '<@!' + player.discord_id + '> | ' + str(awards.filter(player=player).count()) + '\n'
     except:
         msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
     return msg
