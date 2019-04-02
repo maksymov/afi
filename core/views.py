@@ -404,7 +404,8 @@ def get_top(message):
                 discord_server_id=discord_server_id
             ).annotate(awards=Count('playeraward')).order_by('-awards')
         for player in top_list:
-            msg += '<@!' + player.discord_id + '> | ' + str(player.awards) + '\n'
+            if player.awards > 0:
+                msg += '<@!' + player.discord_id + '> | ' + str(player.awards) + '\n'
     except:
         msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
     return msg
