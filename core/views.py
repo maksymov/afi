@@ -401,14 +401,13 @@ def get_top(message):
         end = message_text[message_text.find("[") + 1:message_text.find("]")]
         end_date = datetime.strptime(end, "%Y-%m-%d").date()
         players = Player.objects.filter(discord_server_id=discord_server_id)
-        awards = PlayerAward.objects.filter(
+        top_list = PlayerAward.objects.filter(
                 player__in=players,
                 date_from__gte=start_date,
                 date_from__lte=end_date
-            ).annotate(awards=Count('player')).order_by('player')
-        for player in players:
-            if awards.filter(player=player).count() > 0:
-                msg += '<@!' + player.discord_id + '> | ' + str(awards.filter(player=player).count()) + '\n'
+            ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
+        for player in top_list:
+            msg += '<@!' + player['player__discord_id'] + '> | ' + str(player['awards']) + '\n'
     except:
         msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
     return msg
