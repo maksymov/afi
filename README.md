@@ -21,6 +21,7 @@
 [Бот AFI](https://discordapp.com/oauth2/authorize?client_id=304296578989162496&scope=bot&permissions=134728768)
 
 [Discord-канал тех. поддержки](https://discord.gg/Gqza8FD)
+[Собираем на развитие](https://yasobe.ru/na/afi)
 
 ## 1. РОЛИ И ПРАВА
 
