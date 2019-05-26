@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 # from django.shortcuts import render
 import json
 import re
-import urllib.request
+import urllib
 from django.db.models import Count
 from django.db.models import Q
 from django.http import HttpResponse
@@ -264,7 +264,6 @@ def award_create(message):
     tag = message_text[message_text.find("[") + 1:message_text.find("]")]
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-    duration = message_text[message_text.find("{") + 1:message_text.find("}")]
     if Award.objects.filter(discord_server_id=discord_server_id).filter(
             Q(tag=tag) | Q(title=title)).exists():
         msg = _(u"Такая награда уже есть. Названия и значки наград не должны повторяться")
@@ -272,8 +271,7 @@ def award_create(message):
     Award.objects.create(discord_server_id=discord_server_id,
                          tag=tag,
                          title=title,
-                         desc=desc,
-                         duration=duration)
+                         desc=desc)
     msg = _(u"Новая награда добавлена в базу данных полка")
     return msg
 
@@ -297,7 +295,7 @@ def award_delete(message):
     return msg
 
 
-def rank_create(request):
+def rank_create(message):
     """Создание нового звания"""
     set_locale(message)
     rights = check_rights(message.author.roles)
@@ -321,7 +319,7 @@ def rank_create(request):
     return msg
 
 
-def rank_delete(request):
+def rank_delete(message):
     """Удаление звания"""
     set_locale(message)
     rights = check_rights(message.author.roles)

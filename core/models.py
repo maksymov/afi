@@ -53,7 +53,6 @@ class Award(models.Model):
     tag = models.CharField(max_length=8)
     title = models.CharField(max_length=255)
     desc = models.TextField(max_length=600, blank=True)
-    duration = models.CharField(max_length=600)
 
 
 class Player(models.Model):
