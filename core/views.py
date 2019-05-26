@@ -71,12 +71,12 @@ def squad_ranks(message):
 def squad_awards(message):
     set_locale(message)
     discord_server_id = message.server.id
-    awards = Award.objects.filter(discord_server_id=discord_server_id)
+    awards = Award.objects.filter(discord_server_id=discord_server_id).order_by('order')
     msg = ""
     if not awards:
         msg = _(u"В базе данных полка ещё не созданы награды. Создайте их!")
     for award in awards:
-        msg += "`%s` - %s: %s; \n" % (award.tag, award.title, award.desc)
+        msg += "%s) `%s` - %s: %s; \n" % (award.order, award.tag, award.title, award.desc)
     return msg
 
 
@@ -264,6 +264,7 @@ def award_create(message):
     tag = message_text[message_text.find("[") + 1:message_text.find("]")]
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+    order = message_text[message_text.find("{") + 1:message_text.find("}")]
     if Award.objects.filter(discord_server_id=discord_server_id).filter(
             Q(tag=tag) | Q(title=title)).exists():
         msg = _(u"Такая награда уже есть. Названия и значки наград не должны повторяться")
@@ -271,7 +272,8 @@ def award_create(message):
     Award.objects.create(discord_server_id=discord_server_id,
                          tag=tag,
                          title=title,
-                         desc=desc)
+                         desc=desc,
+                         order=order)
     msg = _(u"Новая награда добавлена в базу данных полка")
     return msg
 
@@ -292,6 +294,31 @@ def award_delete(message):
         award.delete()
     except:
         msg = _(u"Нет такой награды")
+    return msg
+
+
+def award_edit(message):
+    """Редактирование награды"""
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    title = message_text[message_text.find("(") + 1:message_text.find(")")]
+    try:
+        award = Award.objects.get(discord_server_id=discord_server_id, title=title)
+        tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+        order = message_text[message_text.find("{") + 1:message_text.find("}")]
+        msg = _(u"Награда изменена")
+        award.tag = tag
+        award.desc = desc
+        award.order = order
+        award.save()
+    except:
+        msg = _(u"Нет такой награды или команда дана неверно. Смотри описание бота.")
     return msg
 
 
@@ -333,6 +360,29 @@ def rank_delete(message):
         Rank.objects.get(discord_server_id=discord_server_id,
                 title=title).delete()
         msg = _(u"Звание удалено из базы данных полка")
+    except:
+        msg = _(u"Нет такого звания")
+    return msg
+
+
+def rank_edit(message):
+    """Изменение звания"""
+    set_locale(message)
+    rights = check_rights(message.author.roles)
+    if rights == 'no':
+        msg = _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")
+        return msg
+    discord_server_id = message.server.id
+    message_text = message.clean_content
+    title = message_text[message_text.find("(") + 1:message_text.find(")")]
+    try:
+        rank = Rank.objects.get(discord_server_id=discord_server_id, title=title)
+        tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+        rank.tag = tag
+        rank.desc = desc
+        rank.save()
+        msg = _(u"Звание изменено")
     except:
         msg = _(u"Нет такого звания")
     return msg

@@ -25,8 +25,10 @@ award_add = [u"!награда+", u"!award+"]
 award_remove = [u"!награда-", u"!award-"]
 create_award_in_database = [u"!добавить-награду-в-базу-данных", u"!create-award-in-database"]
 delete_award_from_database = [u"!удалить-награду-из-базы-данных", u"!delete-award-from-database"]
+edit_award_in_database = [u"!изменить_награду", u"!edit_award"]
 create_rank_in_database = [u"!добавить-звание-в-базу-данных", u"!create-rank-in-database"]
 delete_rank_from_database = [u"!удалить-звание-из-базы-данных", u"!delete-rank-from-database"]
+edit_rank_in_database  = [u"!изменить_звание", u"!edit_rank"]
 top = [u"!топ", u"!top"]
 
 @client.event
@@ -114,6 +116,11 @@ async def on_message(message):
     elif message.content.startswith(tuple(delete_award_from_database)):
         msg = award_delete(message)
         await client.send_message(message.channel, msg)
+    # ===============================
+    # РЕДАКТИРОВАНИЕ ПОЛКОВОЙ НАГРАДЫ
+    elif message.content.startswith(tuple(edit_award_in_database)):
+        msg = award_edit(message)
+        await client.send_message(message.channel, msg)
     # =========================
     # СОЗДАНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(tuple(create_rank_in_database)):
@@ -123,6 +130,11 @@ async def on_message(message):
     # УДАЛЕНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(tuple(delete_rank_from_database)):
         msg = rank_delete(message)
+        await client.send_message(message.channel, msg)
+    # ===============================
+    # РЕДАКТИРОВАНИЕ ПОЛКОВОГО ЗВАНИЯ
+    elif message.content.startswith(tuple(edit_rank_in_database)):
+        msg = rank_edit(message)
         await client.send_message(message.channel, msg)
     # =====================
     # ТОП ИГРОКОВ ЗА ПЕРИОД
