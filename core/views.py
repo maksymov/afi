@@ -267,7 +267,7 @@ def award_create(message):
         return msg
     discord_server_id = message.server.id
     message_text = message.clean_content
-    tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+    tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     desc = message_text[message_text.find("<") + 1:message_text.find(">")]
     order = message_text[message_text.find("{") + 1:message_text.find("}")]
@@ -337,7 +337,7 @@ def rank_create(message):
         return msg
     discord_server_id = message.server.id
     message_text = message.clean_content
-    tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+    tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     desc = message_text[message_text.find("<") + 1:message_text.find(">")]
     if Rank.objects.filter(discord_server_id=discord_server_id).filter(
