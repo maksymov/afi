@@ -315,7 +315,7 @@ def award_edit(message):
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     try:
         award = Award.objects.get(discord_server_id=discord_server_id, title=title)
-        tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+        tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
         desc = message_text[message_text.find("<") + 1:message_text.find(">")]
         order = message_text[message_text.find("{") + 1:message_text.find("}")]
         msg = _(u"Награда изменена")
@@ -383,7 +383,7 @@ def rank_edit(message):
     title = message_text[message_text.find("(") + 1:message_text.find(")")]
     try:
         rank = Rank.objects.get(discord_server_id=discord_server_id, title=title)
-        tag = message_text[message_text.find("[") + 1:message_text.find("]")]
+        tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
         desc = message_text[message_text.find("<") + 1:message_text.find(">")]
         rank.tag = tag
         rank.desc = desc
