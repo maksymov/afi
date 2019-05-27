@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import json
 import re
 import urllib
+import prettytable
 from django.db.models import Count
 from django.db.models import Q
 from django.http import HttpResponse
@@ -454,8 +455,13 @@ def get_top(message):
                 date_from__gte=start_date,
                 date_from__lte=end_date
             ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
+        #x = prettytable.PrettyTable([_(u"Игрок"), _(u"Всего"), _(u"Детально")])
         for player in top_list:
-            msg += '<@!' + player['player__discord_id'] + '> | ' + str(player['awards']) + '\n'
+            awards = player_awards(discord_server_id, player['player__discord_id'])
+            username = "<@!%s>" % (player['player__discord_id'])
+            awards_count = str(player['awards'])
+            #x.add_row([username, awards_count, awards])
+            msg += "%s | %s | %s \n" % (awards_count, username, awards)
     except:
         msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
     return msg
