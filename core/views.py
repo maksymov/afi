@@ -243,10 +243,15 @@ def player_ranks(discord_server_id, discord_id):
     return ranks_str
 
 
-def player_awards(discord_server_id, discord_id):
+def player_awards(discord_server_id, discord_id, start_date=None, fin_date=None):
     player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
                                                    discord_id=discord_id)
-    awards = PlayerAward.objects.filter(player=player).values('award__tag').annotate(Count('id'))
+    award_list = PlayerAward.objects.filter(player=player).values('award__tag')
+    if start_date:
+        award_list = award_list.filter(date_from__gte=start_date)
+    if fin_date:
+        award_list = award_list.filter(date_from__lte=fin_date)
+    awards = award_list.annotate(Count('id'))
     awards_str = ""
     for i in awards:
         awards_str += '`' + i['award__tag'] + '`' + str(i['id__count']) + ' | '
@@ -444,25 +449,30 @@ def get_top(message):
     msg = ""
     discord_server_id = message.server.id
     message_text = message.clean_content
-    try:
-        start = message_text[message_text.find("(") + 1:message_text.find(")")]
-        start_date = datetime.strptime(start, "%Y-%m-%d").date()
-        end = message_text[message_text.find("[") + 1:message_text.find("]")]
-        end_date = datetime.strptime(end, "%Y-%m-%d").date()
-        players = Player.objects.filter(discord_server_id=discord_server_id)
-        top_list = PlayerAward.objects.filter(
-                player__in=players,
-                date_from__gte=start_date,
-                date_from__lte=end_date
-            ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
-        #x = prettytable.PrettyTable([_(u"Игрок"), _(u"Всего"), _(u"Детально")])
-        for player in top_list:
-            awards = player_awards(discord_server_id, player['player__discord_id'])
-            username = "<@!%s>" % (player['player__discord_id'])
-            awards_count = str(player['awards'])
-            #x.add_row([username, awards_count, awards])
-            msg += "%s | %s | %s \n" % (awards_count, username, awards)
-    except:
-        msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
+    #try:
+    start = message_text[message_text.find("(") + 1:message_text.find(")")]
+    start_date = datetime.strptime(start, "%Y-%m-%d").date()
+    end = message_text[message_text.find("[") + 1:message_text.find("]")]
+    end_date = datetime.strptime(end, "%Y-%m-%d").date()
+    players = Player.objects.filter(discord_server_id=discord_server_id)
+    top_list = PlayerAward.objects.filter(
+            player__in=players,
+            date_from__gte=start_date,
+            date_from__lte=end_date
+        ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
+    #x = prettytable.PrettyTable([_(u"Игрок"), _(u"Всего"), _(u"Детально")])
+    for player in top_list:
+        awards = player_awards(
+                discord_server_id,
+                player['player__discord_id'],
+                start_date,
+                end_date,
+                )
+        username = "<@!%s>" % (player['player__discord_id'])
+        awards_count = str(player['awards'])
+        #x.add_row([username, awards_count, awards])
+        msg += "%s | %s | %s \n" % (awards_count, username, awards)
+    #except:
+    #    msg += _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')
     return msg
 
