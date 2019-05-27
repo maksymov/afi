@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import json
 import re
 import urllib
-import prettytable
+#import prettytable
 from django.db.models import Count
 from django.db.models import Q
 from django.http import HttpResponse
