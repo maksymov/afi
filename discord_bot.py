@@ -38,54 +38,100 @@ async def on_message(message):
     боту и возвращает ответ в канал дискорда.
 
     """
-    discord_server_id = message.server.id
+    discord_server_id = message.guild.id
     afi = client.user
     if afi in message.mentions:
-        servers = client.servers
+        servers = client.guilds
         num = len(servers)
         text = u'{0.author.mention}, ' + _(u'вся инфа про меня здесь: ')\
                + u'<https://github.com/maksymov/afi/blob/master/README.md> \n' \
                + _(u'Discord-сервер тех. поддержки:') + ' <https://discord.gg/Gqza8FD> \n' \
                + _(u'Работаю на ') + str(num) + _(u' серверах!')
         msg = text.format(message)
-        await client.send_message(message.channel, msg)
+        embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
     # =======================
     # Выбор языка для сервера
     elif message.content.startswith(u'!lang'):
         msg = set_lang(message)
-        await client.send_message(message.channel, msg)
+        embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
     # ======================
     # ПРИВЯЗКА ИГРОВОГО НИКА
     elif message.content.startswith(tuple(nick)):
         msg = player_nick(message)
-        await client.send_message(message.channel, msg)
+        embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
     # ===========================
     # ПОЛУЧЕНИЕ СТАТИСТИКИ ИГРОКА
     elif message.content.startswith(tuple(stat)):
         if not message.mentions:
             message.mentions.append(message.author)
         msg = player_stat(message)
-        await client.send_message(message.channel, msg)
+        embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
     # ======================
     # СПИСОК ПОЛКОВЫХ ЗВАНИЙ
     elif message.content.startswith(tuple(ranks)):
         msg = squad_ranks(message)
-        await client.send_message(message.channel, msg)
+        embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
     # ======================
     # СПИСОК ПОЛКОВЫХ НАГРАД
     elif message.content.startswith(tuple(awards)):
         msg = squad_awards(message)
-        await client.send_message(message.channel, msg)
+        embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
     # ========================
     # ПРИСВОЕНИЕ ЗВАНИЯ ИГРОКУ
     elif message.content.startswith(tuple(rank_add)):
         msg = player_rank_add(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # ============================
     # РАЗЖАЛОВАНИЕ В ЗВАНИИ ИГРОКА
     elif message.content.startswith(tuple(rank_remove)):
         msg = player_rank_remove(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =======================
     # ВРУЧЕНИЕ НАГРАДЫ ИГРОКУ
     elif message.content.startswith(tuple(award_add)):
@@ -95,7 +141,15 @@ async def on_message(message):
                 await client.change_nickname(u['user'], u['nickname'])
             except:
                 pass
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =======================
     # ОТБОР НАГРАДЫ ИГРОКА
     elif message.content.startswith(tuple(award_remove)):
@@ -105,40 +159,105 @@ async def on_message(message):
                 await client.change_nickname(u['user'], u['nickname'])
             except:
                 pass
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =========================
     # СОЗДАНИЕ ПОЛКОВОЙ НАГРАДЫ
     elif message.content.startswith(tuple(create_award_in_database)):
         msg = award_create(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =========================
     # УДАЛЕНИЕ ПОЛКОВОЙ НАГРАДЫ
     elif message.content.startswith(tuple(delete_award_from_database)):
         msg = award_delete(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # ===============================
     # РЕДАКТИРОВАНИЕ ПОЛКОВОЙ НАГРАДЫ
     elif message.content.startswith(tuple(edit_award_in_database)):
         msg = award_edit(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =========================
     # СОЗДАНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(tuple(create_rank_in_database)):
         msg = rank_create(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =========================
     # УДАЛЕНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(tuple(delete_rank_from_database)):
         msg = rank_delete(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # ===============================
     # РЕДАКТИРОВАНИЕ ПОЛКОВОГО ЗВАНИЯ
     elif message.content.startswith(tuple(edit_rank_in_database)):
         msg = rank_edit(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            await message.add_reaction("👌")
+        if msg[0] == 'err':
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
     # =====================
     # ТОП ИГРОКОВ ЗА ПЕРИОД
     elif message.content.startswith(tuple(top)):
         msg = get_top(message)
-        await client.send_message(message.channel, msg)
+        if msg[0] == 'ok':
+            colour = 0x2ecc71
+        if msg[0] == 'err':
+            colour = 0xe74c3c
+        embed = discord.Embed(
+            description=msg[1],
+            colour=colour,
+            type='rich',
+        )
+        await message.channel.send(embed=embed)
 client.run(bot_settings.BOT_TOKEN)
