@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 
-import discord
 # from django.shortcuts import render
 import json
 import re
