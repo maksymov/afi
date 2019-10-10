@@ -446,7 +446,7 @@ def player_stat(message):
 def get_top(message):
     set_locale(message)
     txt = ""
-    discord_server_id =message.guild.id
+    discord_server_id = message.guild.id
     message_text = message.clean_content
     try:
         start = message_text[message_text.find("(") + 1:message_text.find(")")]

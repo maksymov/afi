@@ -251,13 +251,12 @@ async def on_message(message):
     elif message.content.startswith(tuple(top)):
         msg = get_top(message)
         if msg[0] == 'ok':
-            colour = 0x2ecc71
+            await message.channel.send(msg[1])
         if msg[0] == 'err':
-            colour = 0xe74c3c
-        embed = discord.Embed(
-            description=msg[1],
-            colour=colour,
-            type='rich',
-        )
-        await message.channel.send(embed=embed)
+            embed = discord.Embed(
+                description=msg[1],
+                colour=0xe74c3c,
+                type='rich',
+            )
+            await message.channel.send(embed=embed)
 client.run(bot_settings.BOT_TOKEN)
