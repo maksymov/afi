@@ -408,7 +408,8 @@ def player_stat(message):
             req = urllib.request.Request(url, headers = headers)
             json_data = urllib.request.urlopen(req).read()
             data = json.loads(json_data.decode())
-            msg += user.mention + ' | ' + base_url + username + '\n' \
+            user_url = base_url + username
+            msg += user.mention + ' | [ThunderSkill](%s)\n' % (user_url) \
                     + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
                     + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
                     + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
@@ -425,7 +426,7 @@ def player_stat(message):
                 json_data = urllib.request.urlopen(req).read()
                 data = json.loads(json_data.decode())
                 user_url = base_url + username
-                msg += user.mention + ' | ' + user_url + '\n' \
+                msg += user.mention + ' | [ThunderSkill](%s)\n' % (user_url) \
                         + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
                         + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
                         + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
