@@ -446,7 +446,7 @@ def player_stat(message):
 
 def get_top(message):
     set_locale(message)
-    txt = "**" + _(u'ТОП 20 ИГРОКОВ') + "** \n"
+    txt = "**" + _(u'ТОП 10 ИГРОКОВ') + "** \n"
     discord_server_id = message.guild.id
     message_text = message.clean_content
     try:

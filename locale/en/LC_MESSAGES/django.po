@@ -6,18 +6,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-18 09:42+0000\n"
-"PO-Revision-Date: 2018-02-03 10:50+0200\n"
+"POT-Creation-Date: 2020-03-18 11:58+0000\n"
+"PO-Revision-Date: 2020-03-18 14:59+0300\n"
 "Last-Translator: vlad <maksymov.vlad@gmail.com>\n"
 "Language-Team: английский <>\n"
-"Language: \n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: core/views.py:46
 msgid "Да хоть по-китайски"
@@ -71,8 +71,7 @@ msgstr "Award is absent or wrong command"
 
 #: core/views.py:342
 msgid "Такое звание уже есть. Названия и значки званий не должны повторяться"
-msgstr ""
-"This Rank already exists. Names and tags of Ranks should not be repeated"
+msgstr "This Rank already exists. Names and tags of Ranks should not be repeated"
 
 #: core/views.py:413 core/views.py:430
 msgid "(**АБ**) "
@@ -115,26 +114,26 @@ msgid " **Награды:** "
 msgstr " **Awards:** "
 
 #: core/views.py:449
-msgid "ТОП 20 ИГРОКОВ"
-msgstr ""
+msgid "ТОП 10 ИГРОКОВ"
+msgstr "TOP 10 PLAYERS"
 
 #: core/views.py:477
 msgid "Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`"
 msgstr "The command should look like this: `!top (YYYY-MM-DD) [YYYY-MM-DD]`"
 
-#: discord_bot.py:46
+#: discord_bot.py:47
 msgid "вся инфа про меня здесь: "
 msgstr "more info here: "
 
-#: discord_bot.py:48
+#: discord_bot.py:49
 msgid "Discord-сервер тех. поддержки:"
 msgstr "AFI Support (Discord Server):"
 
-#: discord_bot.py:49
+#: discord_bot.py:50
 msgid "Работаю на "
 msgstr "Wirking on "
 
-#: discord_bot.py:49
+#: discord_bot.py:50
 msgid " серверах!"
 msgstr " servers!"
 
