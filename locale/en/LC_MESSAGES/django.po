@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-03 09:20+0200\n"
+"POT-Creation-Date: 2020-03-18 09:42+0000\n"
 "PO-Revision-Date: 2018-02-03 10:50+0200\n"
 "Last-Translator: vlad <maksymov.vlad@gmail.com>\n"
 "Language-Team: английский <>\n"
@@ -19,108 +19,82 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 2.91.7\n"
 
-#: core/views.py:43
+#: core/views.py:46
 msgid "Да хоть по-китайски"
 msgstr "Ok, English!"
 
-#: core/views.py:45
+#: core/views.py:48
 msgid "Я знаю только русский и английский"
 msgstr "I speak Russian and English only"
 
-#: core/views.py:63
+#: core/views.py:66
 msgid "В базе данных полка ещё не созданы звания. Создайте их!"
 msgstr "Rank database is empty. Create ranks first!"
 
-#: core/views.py:75
+#: core/views.py:78
 msgid "В базе данных полка ещё не созданы награды. Создайте их!"
 msgstr "Award database is empty. Create awards first!"
 
-#: core/views.py:86 core/views.py:116
-msgid "Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
-msgstr ""
+#: core/views.py:98
+msgid "Аккаунт WarThunder привязан!"
+msgstr "WarThunder account connected"
 
-#: core/views.py:99 core/views.py:129 core/views.py:240
+#: core/views.py:107 core/views.py:134 core/views.py:162 core/views.py:198
+#: core/views.py:263 core/views.py:289 core/views.py:308 core/views.py:333
+#: core/views.py:357 core/views.py:376
+msgid "Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'."
+msgstr "Why are you giving orders? You don't have a role '[AFI] Звания и награды'."
+
+#: core/views.py:119 core/views.py:146 core/views.py:367 core/views.py:390
 msgid "Нет такого звания"
 msgstr "There is no such Rank"
 
-#: core/views.py:103
-msgid " Звание уже было присвоено ранее"
-msgstr " The Rank has already been assigned earlier"
-
-#: core/views.py:106
-msgid "Звание присвоено!"
-msgstr "Rank assigned!"
-
-#: core/views.py:133
-msgid "Игрок разжалован в звании!"
-msgstr "Rank deassigned!"
-
-#: core/views.py:135
-msgid "Звание ещё не присвоено игроку"
-msgstr "The Rank is not yet assigned to the player"
-
-#: core/views.py:148 core/views.py:162 core/views.py:215
+#: core/views.py:185 core/views.py:216 core/views.py:299
 msgid "Нет такой награды"
 msgstr "There is no such Award"
 
-#: core/views.py:151
-msgid "Награда вручена!"
-msgstr "Award assigned!"
-
-#: core/views.py:166
-msgid "Награда игрока удалена!"
-msgstr "Award deassigned!"
-
-#: core/views.py:168
+#: core/views.py:221
 msgid "У игрока нет такой награды"
 msgstr "The player does not have such a award"
 
-#: core/views.py:196
+#: core/views.py:236 core/views.py:254
+msgid "нет"
+msgstr "no"
+
+#: core/views.py:273
 msgid "Такая награда уже есть. Названия и значки наград не должны повторяться"
 msgstr "Such Award already exists. Names and tags should not be repeated"
 
-#: core/views.py:203
-msgid "Новая награда добавлена в базу данных полка"
-msgstr "New Award was created in a squad's database"
+#: core/views.py:324
+msgid "Нет такой награды или команда дана неверно. Смотри описание бота."
+msgstr "Award is absent or wrong command"
 
-#: core/views.py:212
-msgid "Награда удалена из базы данных полка"
-msgstr "Award was deleted from squad's database"
-
-#: core/views.py:223
+#: core/views.py:342
 msgid "Такое звание уже есть. Названия и значки званий не должны повторяться"
 msgstr ""
 "This Rank already exists. Names and tags of Ranks should not be repeated"
 
-#: core/views.py:229
-msgid "Новое звание добавлено в базу данных полка"
-msgstr "New Rank was created in a squad's database"
-
-#: core/views.py:238
-msgid "Звание удалено из базы данных полка"
-msgstr "Rank was deleted from squad's database"
-
-#: core/views.py:258
+#: core/views.py:413 core/views.py:430
 msgid "(**АБ**) "
 msgstr "(**A**) "
 
-#: core/views.py:259
+#: core/views.py:414 core/views.py:431
 msgid "(**РБ**) "
 msgstr "(**R**) "
 
-#: core/views.py:260
+#: core/views.py:415 core/views.py:432
 msgid "(**СБ**) "
 msgstr "(**S**) "
 
-#: core/views.py:262
+#: core/views.py:434
 msgid " не нашёл я такого в ThunderSkill."
 msgstr " I can't find you on ThunderSkill."
 
-#: core/views.py:263
+#: core/views.py:435
 msgid " Псевдоним на сервере должен повторять ник в игре "
 msgstr " The alias on the server should repeat the nickname in the game "
 
-#: core/views.py:264
+#: core/views.py:436
 msgid ""
 "и быть заключён в треугольные скобки. Например: \n"
 " `<pupkin>`, "
@@ -128,30 +102,68 @@ msgstr ""
 "and be enclosed in triangular brackets. For example:\n"
 " `<pupkin>`, "
 
-#: core/views.py:265
+#: core/views.py:437
 msgid "`<pupkin> (Василий)`, `[AFI]<pupkin>(Василий)` и т.д."
 msgstr "`<pupkin> (Vasiliy)`, `[AFI]<pupkin>(Vasiliy)` etc."
 
-#: core/views.py:268
+#: core/views.py:440
 msgid "**Звания:** "
 msgstr "**Ranks:** "
 
-#: core/views.py:271
+#: core/views.py:443
 msgid " **Награды:** "
 msgstr " **Awards:** "
 
-#: discord_bot.py:51
+#: core/views.py:449
+msgid "ТОП 20 ИГРОКОВ"
+msgstr ""
+
+#: core/views.py:477
+msgid "Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`"
+msgstr "The command should look like this: `!top (YYYY-MM-DD) [YYYY-MM-DD]`"
+
+#: discord_bot.py:46
 msgid "вся инфа про меня здесь: "
 msgstr "more info here: "
 
-#: discord_bot.py:53
+#: discord_bot.py:48
 msgid "Discord-сервер тех. поддержки:"
 msgstr "AFI Support (Discord Server):"
 
-#: discord_bot.py:54
+#: discord_bot.py:49
 msgid "Работаю на "
 msgstr "Wirking on "
 
-#: discord_bot.py:54
+#: discord_bot.py:49
 msgid " серверах!"
 msgstr " servers!"
+
+#~ msgid " Звание уже было присвоено ранее"
+#~ msgstr " The Rank has already been assigned earlier"
+
+#~ msgid "Звание присвоено!"
+#~ msgstr "Rank assigned!"
+
+#~ msgid "Игрок разжалован в звании!"
+#~ msgstr "Rank deassigned!"
+
+#~ msgid "Звание ещё не присвоено игроку"
+#~ msgstr "The Rank is not yet assigned to the player"
+
+#~ msgid "Награда вручена!"
+#~ msgstr "Award assigned!"
+
+#~ msgid "Награда игрока удалена!"
+#~ msgstr "Award deassigned!"
+
+#~ msgid "Новая награда добавлена в базу данных полка"
+#~ msgstr "New Award was created in a squad's database"
+
+#~ msgid "Награда удалена из базы данных полка"
+#~ msgstr "Award was deleted from squad's database"
+
+#~ msgid "Новое звание добавлено в базу данных полка"
+#~ msgstr "New Rank was created in a squad's database"
+
+#~ msgid "Звание удалено из базы данных полка"
+#~ msgstr "Rank was deleted from squad's database"
