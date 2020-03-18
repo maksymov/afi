@@ -461,7 +461,7 @@ def get_top(message):
                 date_from__lte=end_date
             ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
         #x = prettytable.PrettyTable([_(u"Игрок"), _(u"Всего"), _(u"Детально")])
-        for player in top_list[:20]:
+        for player in top_list[:10]:
             awards = player_awards(
                     discord_server_id,
                     player['player__discord_id'],
