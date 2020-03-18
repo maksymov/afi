@@ -7,6 +7,7 @@ import bot_settings
 
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "afi.settings")
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 import django
 django.setup()
 
