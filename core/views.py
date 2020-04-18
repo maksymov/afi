@@ -161,7 +161,7 @@ def player_award_add(message):
     if rights == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
         return msg, users
-    discord_server_id =message.guild.id
+    discord_server_id = message.guild.id
     message_text = message.clean_content
     award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
     tag_list = Award.objects.filter(

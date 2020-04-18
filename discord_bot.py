@@ -139,7 +139,7 @@ async def on_message(message):
         msg, users = player_award_add(message)
         for u in users:
             try:
-                await client.change_nickname(u['user'], u['nickname'])
+                await u['user'].edit(nick=u['nickname'])
             except:
                 pass
         if msg[0] == 'ok':
@@ -157,7 +157,7 @@ async def on_message(message):
         msg, users = player_award_delete(message)
         for u in users:
             try:
-                await client.change_nickname(u['user'], u['nickname'])
+                await u['user'].edit(nick=u['nickname'])
             except:
                 pass
         if msg[0] == 'ok':

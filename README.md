@@ -199,15 +199,15 @@
 Установка **Discord.py**:
 
 ```
-sudo apt install build-essential
-sudo apt install python3-pip
-sudo apt install python3-dev
-sudo apt install python3-setuptools
-sudo apt install libffi-dev
+git clone git@github.com:maksymov/afi.git
+sudo apt install virtualenv
+cd afi/
+source .env/bin/activate
+pip install -U discord.py
 sudo apt install git
-sudo python3 -m pip install --upgrade pip
-sudo python3 -m pip install -U discord.py[voice]
-sudo python3 -m pip install django
+pip install --upgrade pip
+pip install django
+python manage.py migrate
 ```
 
 После этого клонируйте репозиторий AFI, и добавте файл bot_settings.py
