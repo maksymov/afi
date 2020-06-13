@@ -418,16 +418,18 @@ def player_stat(message):
             try:
                 ts_response = urllib.request.urlopen(req)
             except urllib.error.HTTPError as e:
-                msg += 'ThunderSkill error: ' + str(e.code) + ' \n'
+                if e.code == 404:
+                    msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
+                    + '[' + _(u'Требования к никам') + ']'
+                    if lang == 'ru':
+                        msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
+                    else:
+                        msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
+                else:
+                    msg += 'ThunderSkill error: ' + str(e.code) + ' \n'
                 ts_response = None
             except urllib.error.URLError as e:
                 ts_response = None
-                msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
-                    + '[' + _(u'Требования к никам') + ']'
-                if lang == 'ru':
-                    msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
-                else:
-                    msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
             if ts_response:
                 json_data = urllib.request.urlopen(req).read()
                 data = json.loads(json_data.decode())
