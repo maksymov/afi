@@ -26,9 +26,10 @@ def set_locale(message):
     lang = Player.objects.get(discord_server_id=discord_server_id, discord_id=discord_id).lang
     if lang in langs:
         translation.activate(lang)
+        return lang
     else:
         translation.activate("ru")
-    return
+        return lang
 
 
 def set_lang(message):
@@ -392,37 +393,42 @@ def rank_edit(message):
 
 
 def player_stat(message):
-    set_locale(message)
+    lang = set_locale(message)
     msg = ""
     discord_server_id =message.guild.id
     for user in message.mentions:
-        discord_id = user.id
         # получаю статку игрока с ThunderSkill
+        discord_id = user.id
         user_url="http://thunderskill.com"
-        try:
-            username = user.display_name[user.display_name.find("<") + 1:user.display_name.find(">")]
+        if re.search('\<.*?\>',user.display_name):
+            # получаю ник из треугольных скобок
+            username = re.search('\<.*?\>',user.display_name).group(0)[1:-1]
+        else:
+            # получаю привязанный ник из базы данных
+            player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+                    discord_id=discord_id)
+            username = player.wt_nick
+        if username:
+            # если есть ник - делаю запрос на thunderskill
             base_url = "http://thunderskill.com/ru/stat/"
             url = "http://thunderskill.com/ru/stat/" + username + "/export/json"
             headers = {}
             headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0"
             req = urllib.request.Request(url, headers = headers)
-            json_data = urllib.request.urlopen(req).read()
-            data = json.loads(json_data.decode())
-            user_url = base_url + username
-            msg += user.mention + ' | [ThunderSkill](%s)\n' % (user_url) \
-                    + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
-                    + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
-                    + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
-        except:
             try:
-                player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                       discord_id=discord_id)
-                username = player.wt_nick
-                base_url = "http://thunderskill.com/ru/stat/"
-                url = "http://thunderskill.com/ru/stat/" + username + "/export/json"
-                headers = {}
-                headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0"
-                req = urllib.request.Request(url, headers = headers)
+                ts_response = urllib.request.urlopen(req)
+            except urllib.error.HTTPError as e:
+                msg += 'ThunderSkill error: ' + str(e.code) + ' \n'
+                ts_response = None
+            except urllib.error.URLError as e:
+                ts_response = None
+                msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
+                    + '[' + _(u'Требования к никам') + ']'
+                if lang == 'ru':
+                    msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
+                else:
+                    msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
+            if ts_response:
                 json_data = urllib.request.urlopen(req).read()
                 data = json.loads(json_data.decode())
                 user_url = base_url + username
@@ -430,11 +436,11 @@ def player_stat(message):
                         + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
                         + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
                         + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
-            except:
-                msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
-                        + _(u' Псевдоним на сервере должен повторять ник в игре ') \
-                        + _(u'и быть заключён в треугольные скобки. Например: \n `<pupkin>`, ') \
-                        + _(u'`<pupkin> (Василий)`, `[AFI]<pupkin>(Василий)` и т.д.') + u'\n'
+        else:
+            if lang == 'ru':
+                msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
+            else:
+                msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
         # получаю список званий игрока
         ranks = player_ranks(discord_server_id, discord_id)
         msg += _(u'**Звания:** ') + ranks
