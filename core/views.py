@@ -413,7 +413,7 @@ def player_stat(message):
             base_url = "https://thunderskill.com/ru/stat/"
             url = "https://thunderskill.com/ru/stat/" + username + "/export/json"
             headers = {}
-            headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linu…) Gecko/20100101 Firefox/77.0"
+            headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0"
             req = urllib.request.Request(url, headers = headers)
             try:
                 ts_response = urllib.request.urlopen(req)
