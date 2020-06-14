@@ -399,7 +399,7 @@ def player_stat(message):
     for user in message.mentions:
         # получаю статку игрока с ThunderSkill
         discord_id = user.id
-        user_url="http://thunderskill.com"
+        user_url="https://thunderskill.com"
         if re.search('\<.*?\>',user.display_name):
             # получаю ник из треугольных скобок
             username = re.search('\<.*?\>',user.display_name).group(0)[1:-1]
@@ -410,10 +410,10 @@ def player_stat(message):
             username = player.wt_nick
         if username:
             # если есть ник - делаю запрос на thunderskill
-            base_url = "http://thunderskill.com/ru/stat/"
-            url = "http://thunderskill.com/ru/stat/" + username + "/export/json"
+            base_url = "https://thunderskill.com/ru/stat/"
+            url = "https://thunderskill.com/ru/stat/" + username + "/export/json"
             headers = {}
-            headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0"
+            headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linu…) Gecko/20100101 Firefox/77.0"
             req = urllib.request.Request(url, headers = headers)
             try:
                 ts_response = urllib.request.urlopen(req)
