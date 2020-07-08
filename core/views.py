@@ -84,19 +84,28 @@ def squad_awards(message):
 
 def player_nick(message):
     """Привязка своего ника"""
-    set_locale(message)
+    lang = set_locale(message)
     discord_server_id =message.guild.id
     user = message.author
     discord_id = user.id
     message_text = message.clean_content
-    wt_nick = message_text[message_text.find("(") + 1:message_text.find(")")]
-    player, created = Player.objects.get_or_create(
-            discord_server_id=discord_server_id,
-            discord_id=discord_id,
-            )
-    player.wt_nick = wt_nick
-    player.save()
-    msg = user.mention + '' + _(u'Аккаунт WarThunder привязан!')
+
+    if re.search(r'\(.*?\)',message_text):
+        wt_nick = re.search(r'\(.*?\)',message_text).group(0)[1:-1]
+        player, created = Player.objects.get_or_create(
+                discord_server_id=discord_server_id,
+                discord_id=discord_id,
+                )
+        player.wt_nick = wt_nick
+        player.save()
+        msg = user.mention + '' + _(u'Аккаунт WarThunder привязан!')
+    else:
+        msg = _(u'Ник должен быть в круглых скобках. Вот так: `!ник (мой_игровой_ник)`') + ' \n'
+        msg += '[' + _(u'Требования к никам') + ']'
+        if lang == 'ru':
+            msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
+        else:
+            msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
     return msg
 
 
@@ -400,9 +409,9 @@ def player_stat(message):
         # получаю статку игрока с ThunderSkill
         discord_id = user.id
         user_url="https://thunderskill.com"
-        if re.search('\<.*?\>',user.display_name):
+        if re.search(r'\<.*?\>',user.display_name):
             # получаю ник из треугольных скобок
-            username = re.search('\<.*?\>',user.display_name).group(0)[1:-1]
+            username = re.search(r'\<.*?\>',user.display_name).group(0)[1:-1]
         else:
             # получаю привязанный ник из базы данных
             player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
@@ -428,7 +437,12 @@ def player_stat(message):
                 else:
                     msg += 'ThunderSkill error: ' + str(e.code) + ' \n'
                 ts_response = None
-            except urllib.error.URLError as e:
+            except:
+                msg += '[' + _(u'Требования к никам') + ']'
+                if lang == 'ru':
+                    msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
+                else:
+                    msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
                 ts_response = None
             if ts_response:
                 json_data = urllib.request.urlopen(req).read()
@@ -439,6 +453,7 @@ def player_stat(message):
                         + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
                         + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
         else:
+            msg += '[' + _(u'Требования к никам') + ']'
             if lang == 'ru':
                 msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
             else:
