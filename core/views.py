@@ -33,14 +33,10 @@ def set_locale(message=None, discord_server_id=None, discord_id=None):
         return lang
 
 
-def set_lang(message):
-    set_locale(message)
-    discord_server_id =message.guild.id
-    discord_id = message.author.id
+def set_lang(discord_id, discord_server_id, lang):
+    set_locale(discord_server_id=discord_server_id, discord_id=discord_id)
     player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
                                                    discord_id=discord_id)
-    message_text = message.clean_content
-    lang = message_text[message_text.find("(") + 1:message_text.find(")")]
     if lang in langs:
         player.lang = lang
         player.save()
@@ -469,7 +465,7 @@ def player_stat(message):
 
 
 def get_top(discord_id, discord_server_id, start, end):
-    #set_locale(message)
+    set_locale(discord_server_id=discord_server_id, discord_id=discord_id)
     txt = "**" + _(u'ТОП 10 ИГРОКОВ') + "** \n"
     try:
         start_date = datetime.strptime(start, "%Y-%m-%d").date()

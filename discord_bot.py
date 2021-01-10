@@ -22,6 +22,8 @@ description = "Бот AFI"
 bot = commands.Bot(command_prefix='!', description=description, intents=discord.Intents.all())
 slash = SlashCommand(bot, auto_register=True, auto_delete=True)
 
+guild_ids = [305986295375724555]
+
 nick = [u"!ник", u"!nick"]
 stat = [u"!статка", u"!stat"]
 ranks = [u"!звания", u"!ranks"]
@@ -41,13 +43,17 @@ top = [u"!топ", u"!top"]
 
 test_guild_ids = [305986295375724555]
 
+
+# ------------
+# СЛЭШ-КОМАНДЫ
+# ------------
+
 @slash.slash(name="топ",
     description="Топ 10 игроков за указанный период",
     options=[
         manage_commands.create_option("начальная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True),
         manage_commands.create_option("конечная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True)
-    ]
-)
+    ])
 async def _top(ctx, start, end):
     msg = get_top(ctx.author.id, ctx.guild.id, start, end)
     embed = discord.Embed(
@@ -57,21 +63,63 @@ async def _top(ctx, start, end):
     await ctx.channel.send(embed=embed)
 
 
-#@slash.slash(name="награда",
-#    description="Вручение и отбор наград",
-#    guild_ids=test_guild_ids,
-#    options=[
-#        manage_commands.create_option("Кому", "Укажите, кму вручается награда", SlashCommandOptionType.USER, True),
-#        manage_commands.create_option("действие", "вручить или отнять", SlashCommandOptionType.STRING, True)
-#    ]
-#)
-#async def _award(ctx, start, end):
-#    msg = get_top(ctx.guild.id, start, end)
-#    embed = discord.Embed(
-#            description=msg[1],
-#            colour=0x2ecc71,
-#            type='rich')
-#    await ctx.channel.send(embed=embed)
+@slash.slash(name="язык",
+    description="Выбор языка пользователя",
+    options=[{
+        "name": "выбрать",
+        "description": "Выбор языка пользователя",
+        "type": 3,
+        "required": True,
+        "choices": [{
+            "name": "Русский",
+            "value": "ru"
+        },{
+            "name": "English",
+            "value": "en"
+        }]
+    }])
+async def _lang(ctx, lang):
+    msg = set_lang(ctx.author.id, ctx.guild.id, lang)
+    embed = discord.Embed(
+            description=msg,
+            colour=0x2ecc71,
+            type='rich')
+    await ctx.channel.send(embed=embed)
+
+
+@slash.slash(name="награда",
+    description="Вручение и отбор наград",
+    guild_ids=test_guild_ids,
+    options=[{
+        "name": "кому",
+        "description": "Укажите, кму вручается награда",
+        "type": 6,
+        "required": True,
+    },{
+        "name": "действие",
+        "description": "Вручить или отнять",
+        "type": 3,
+        "required": True,
+        "choices": [{
+                "name": "Вручить",
+                "value": "+"
+            },{
+                "name": "Отнять",
+                "value": "-"
+        }]
+    },{
+        "name": "награда",
+        "description": "Укажите награду",
+        "type": 3,
+        "required": True,
+    }])
+async def _award(ctx, start, end):
+    msg = get_top(ctx.guild.id, start, end)
+    embed = discord.Embed(
+            description=msg[1],
+            colour=0x2ecc71,
+            type='rich')
+    await ctx.channel.send(embed=embed)
 
 @bot.event
 async def on_ready():
@@ -80,9 +128,21 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+
+# ----------------
+# КОМАНДЫ ОТДЕЛЬНО
+# ----------------
+
 @bot.command()
 async def ping(ctx):
+    print('test')
     await ctx.send('pong')
+
+
+# ----------
+# СТАРЫЙ КОД
+# ----------
+
 
 @bot.event
 async def on_message(message):
@@ -110,7 +170,11 @@ async def on_message(message):
     # =======================
     # Выбор языка для сервера
     elif message.content.startswith(u'!lang'):
-        msg = set_lang(message)
+        discord_server_id = message.guild.id
+        discord_id = message.author.id
+        message_text = message.clean_content
+        lang = message_text[message_text.find("(") + 1:message_text.find(")")]
+        msg = set_lang(discord_id, discord_server_id, lang)
         embed = discord.Embed(
             description=msg,
             colour=0x2ecc71,
