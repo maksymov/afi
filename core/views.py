@@ -18,9 +18,10 @@ from datetime import datetime
 
 langs = ["ru", "en"]
 
-def set_locale(message):
-    discord_server_id =message.guild.id
-    discord_id = message.author.id
+def set_locale(message=None, discord_server_id=None, discord_id=None):
+    if message:
+        discord_server_id = message.guild.id
+        discord_id = message.author.id
     player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
                                                    discord_id=discord_id)
     lang = Player.objects.get(discord_server_id=discord_server_id, discord_id=discord_id).lang
@@ -467,15 +468,11 @@ def player_stat(message):
     return msg
 
 
-def get_top(message):
-    set_locale(message)
+def get_top(discord_id, discord_server_id, start, end):
+    #set_locale(message)
     txt = "**" + _(u'ТОП 10 ИГРОКОВ') + "** \n"
-    discord_server_id = message.guild.id
-    message_text = message.clean_content
     try:
-        start = message_text[message_text.find("(") + 1:message_text.find(")")]
         start_date = datetime.strptime(start, "%Y-%m-%d").date()
-        end = message_text[message_text.find("[") + 1:message_text.find("]")]
         end_date = datetime.strptime(end, "%Y-%m-%d").date()
         players = Player.objects.filter(discord_server_id=discord_server_id)
         top_list = PlayerAward.objects.filter(
@@ -483,7 +480,6 @@ def get_top(message):
                 date_from__gte=start_date,
                 date_from__lte=end_date
             ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
-        #x = prettytable.PrettyTable([_(u"Игрок"), _(u"Всего"), _(u"Детально")])
         for player in top_list[:10]:
             awards = player_awards(
                     discord_server_id,

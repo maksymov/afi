@@ -4,17 +4,23 @@ import discord
 import urllib.request
 import json
 import bot_settings
-
+from discord.ext import commands
+from discord_slash import SlashCommand
+from discord_slash import SlashContext
+from discord_slash import SlashCommandOptionType
+from discord_slash.utils import manage_commands
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "afi.settings")
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 import django
 django.setup()
-
 from core.views import *
 from django.utils.translation import ugettext as _
 
-client = discord.Client()
+
+description = "Бот AFI"
+bot = commands.Bot(command_prefix='!', description=description, intents=discord.Intents.all())
+slash = SlashCommand(bot, auto_register=True, auto_delete=True)
 
 nick = [u"!ник", u"!nick"]
 stat = [u"!статка", u"!stat"]
@@ -32,7 +38,53 @@ delete_rank_from_database = [u"!удалить-звание-из-базы-дан
 edit_rank_in_database  = [u"!изменить-звание", u"!edit-rank"]
 top = [u"!топ", u"!top"]
 
-@client.event
+
+test_guild_ids = [305986295375724555]
+
+@slash.slash(name="топ",
+    description="Топ 10 игроков за указанный период",
+    options=[
+        manage_commands.create_option("начальная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True),
+        manage_commands.create_option("конечная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True)
+    ]
+)
+async def _top(ctx, start, end):
+    msg = get_top(ctx.author.id, ctx.guild.id, start, end)
+    embed = discord.Embed(
+            description=msg[1],
+            colour=0x2ecc71,
+            type='rich')
+    await ctx.channel.send(embed=embed)
+
+
+#@slash.slash(name="награда",
+#    description="Вручение и отбор наград",
+#    guild_ids=test_guild_ids,
+#    options=[
+#        manage_commands.create_option("Кому", "Укажите, кму вручается награда", SlashCommandOptionType.USER, True),
+#        manage_commands.create_option("действие", "вручить или отнять", SlashCommandOptionType.STRING, True)
+#    ]
+#)
+#async def _award(ctx, start, end):
+#    msg = get_top(ctx.guild.id, start, end)
+#    embed = discord.Embed(
+#            description=msg[1],
+#            colour=0x2ecc71,
+#            type='rich')
+#    await ctx.channel.send(embed=embed)
+
+@bot.event
+async def on_ready():
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send('pong')
+
+@bot.event
 async def on_message(message):
     """Отслеживание команд
     Функция запускает бота, следит какие команды отправляются
@@ -40,9 +92,9 @@ async def on_message(message):
 
     """
     discord_server_id = message.guild.id
-    afi = client.user
+    afi = bot.user
     if afi in message.mentions:
-        servers = client.guilds
+        servers = bot.guilds
         num = len(servers)
         text = u'{0.author.mention}, ' + _(u'вся инфа про меня здесь: ')\
                + u'<https://github.com/maksymov/afi/blob/master/README.md> \n' \
@@ -250,7 +302,10 @@ async def on_message(message):
     # =====================
     # ТОП ИГРОКОВ ЗА ПЕРИОД
     elif message.content.startswith(tuple(top)):
-        msg = get_top(message)
+        message_text = message.clean_content
+        start = message_text[message_text.find("(") + 1:message_text.find(")")]
+        end = message_text[message_text.find("[") + 1:message_text.find("]")]
+        msg = get_top(message.author.id, message.guild.id, start, end)
         if msg[0] == 'ok':
             await message.channel.send(msg[1])
         if msg[0] == 'err':
@@ -260,4 +315,5 @@ async def on_message(message):
                 type='rich',
             )
             await message.channel.send(embed=embed)
-client.run(bot_settings.BOT_TOKEN)
+    await bot.process_commands(message)
+bot.run(bot_settings.BOT_TOKEN)

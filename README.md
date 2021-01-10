@@ -202,6 +202,7 @@
 git clone git@github.com:maksymov/afi.git
 sudo apt install virtualenv
 cd afi/
+virtualenv -p python3
 source .env/bin/activate
 pip install -U discord.py
 sudo apt install git
