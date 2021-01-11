@@ -48,6 +48,7 @@ test_guild_ids = [305986295375724555]
 # СЛЭШ-КОМАНДЫ
 # ------------
 
+
 @slash.slash(name="топ",
     description="Топ 10 игроков за указанный период",
     options=[
@@ -89,13 +90,7 @@ async def _lang(ctx, lang):
 
 @slash.slash(name="награда",
     description="Вручение и отбор наград",
-    guild_ids=test_guild_ids,
     options=[{
-        "name": "кому",
-        "description": "Укажите, кму вручается награда",
-        "type": 6,
-        "required": True,
-    },{
         "name": "действие",
         "description": "Вручить или отнять",
         "type": 3,
@@ -104,22 +99,43 @@ async def _lang(ctx, lang):
                 "name": "Вручить",
                 "value": "+"
             },{
-                "name": "Отнять",
+                "name": "Отнять (пока не работает)",
                 "value": "-"
         }]
+    },{
+        "name": "игрок",
+        "description": "Укажите, кму вручается награда",
+        "type": 6,
+        "required": True,
     },{
         "name": "награда",
         "description": "Укажите награду",
         "type": 3,
         "required": True,
     }])
-async def _award(ctx, start, end):
-    msg = get_top(ctx.guild.id, start, end)
-    embed = discord.Embed(
-            description=msg[1],
-            colour=0x2ecc71,
-            type='rich')
-    await ctx.channel.send(embed=embed)
+async def _award(ctx, action, user, award_title):
+    if action == '+':
+        msg = player_award_add(discord_server_id=ctx.guild.id,
+                user=user,
+                author=ctx.author,
+                award_title=award_title)
+    #if action == '-':
+    #    msg = player_award_delete(ctx.guild.id, start, end)
+        embed = discord.Embed(
+                description=msg[1],
+                colour=0x2ecc71,
+                type='rich')
+        if ctx.author.nick:
+            footer = "Награду вручил %s" % (ctx.author.nick)
+        else:
+            footer = "Награду вручил %s" % (ctx.author.name)
+        embed.set_footer(text=footer)
+        await ctx.channel.send(embed=embed)
+        if msg[0] == 'ok':
+            try:
+                await user.edit(nick=msg[2])
+            except:
+                pass
 
 @bot.event
 async def on_ready():
@@ -132,6 +148,7 @@ async def on_ready():
 # ----------------
 # КОМАНДЫ ОТДЕЛЬНО
 # ----------------
+
 
 @bot.command()
 async def ping(ctx):
