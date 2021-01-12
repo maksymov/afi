@@ -192,7 +192,7 @@ def player_award_add(message=None,
                     title=award_title
                     )
                 last_award = PlayerAward.objects.filter(player=player).last()
-                if last_award and award.order > last_award.award.order:
+                if last_award and award.order >= last_award.award.order:
                     nickname = award.tag + re.sub(tags, '', user.display_name)
                 else:
                     nickname = user.display_name
@@ -224,7 +224,7 @@ def player_award_add(message=None,
                 title=award_title
                 )
             last_award = PlayerAward.objects.filter(player=player).last()
-            if last_award and award.order > last_award.award.order:
+            if last_award and award.order >= last_award.award.order:
                 nickname = award.tag + re.sub(tags, '', user.display_name)
             else:
                 nickname = None
