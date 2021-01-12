@@ -131,7 +131,7 @@ async def _award(ctx, action, user, award_title):
             footer = "Награду вручил %s" % (ctx.author.name)
         embed.set_footer(text=footer)
         await ctx.channel.send(embed=embed)
-        if msg[0] == 'ok':
+        if msg[0] == 'ok' and msg[2]:
             try:
                 await user.edit(nick=msg[2])
             except:

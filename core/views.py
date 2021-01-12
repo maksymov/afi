@@ -191,7 +191,11 @@ def player_award_add(message=None,
                     discord_server_id=discord_server_id,
                     title=award_title
                     )
-                nickname = award.tag + re.sub(tags, '', user.display_name)
+                last_award = PlayerAward.objects.filter(player=player).last()
+                if last_award and award.order > last_award.award.order:
+                    nickname = award.tag + re.sub(tags, '', user.display_name)
+                else:
+                    nickname = user.display_name
                 users.append({'user': user, 'nickname': nickname})
             except:
                 msg = ['err', _(u'Нет такой награды')]
@@ -219,7 +223,11 @@ def player_award_add(message=None,
                 discord_server_id=discord_server_id,
                 title=award_title
                 )
-            nickname = award.tag + re.sub(tags, '', user.display_name)
+            last_award = PlayerAward.objects.filter(player=player).last()
+            if last_award and award.order > last_award.award.order:
+                nickname = award.tag + re.sub(tags, '', user.display_name)
+            else:
+                nickname = None
         except:
             msg = ['err', _(u'Нет такой награды')]
             return msg
