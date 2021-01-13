@@ -192,10 +192,13 @@ def player_award_add(message=None,
                     title=award_title
                     )
                 last_award = PlayerAward.objects.filter(player=player).last()
-                if last_award and award.order >= last_award.award.order:
-                    nickname = award.tag + re.sub(tags, '', user.display_name)
+                if last_award:
+                    if award.order >= last_award.award.order:
+                        nickname = award.tag + re.sub(tags, '', user.display_name)
+                    else:
+                        nickname = user.display_name
                 else:
-                    nickname = user.display_name
+                    nickname = award.tag + user.display_name
                 users.append({'user': user, 'nickname': nickname})
             except:
                 msg = ['err', _(u'Нет такой награды')]
@@ -224,10 +227,13 @@ def player_award_add(message=None,
                 title=award_title
                 )
             last_award = PlayerAward.objects.filter(player=player).last()
-            if last_award and award.order >= last_award.award.order:
-                nickname = award.tag + re.sub(tags, '', user.display_name)
+            if last_award:
+                if award.order >= last_award.award.order:
+                    nickname = award.tag + re.sub(tags, '', user.display_name)
+                else:
+                    nickname = None
             else:
-                nickname = None
+                nickname = award.tag + user.display_name
         except:
             msg = ['err', _(u'Нет такой награды')]
             return msg
