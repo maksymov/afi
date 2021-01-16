@@ -191,9 +191,9 @@ def player_award_add(message=None,
                     discord_server_id=discord_server_id,
                     title=award_title
                     )
-                last_award = PlayerAward.objects.filter(player=player).last()
+                top_award = PlayerAward.objects.filter(player=player).order_by('award__order').last()
                 if last_award:
-                    if award.order >= last_award.award.order:
+                    if award.order >= top_award.award.order:
                         nickname = award.tag + re.sub(tags, '', user.display_name)
                     else:
                         nickname = user.display_name
@@ -228,7 +228,7 @@ def player_award_add(message=None,
                 )
             top_award = PlayerAward.objects.filter(player=player).order_by('award__order').last()
             if last_award:
-                if award.order >= last_award.award.order:
+                if award.order >= top_award.award.order:
                     nickname = award.tag + re.sub(tags, '', user.display_name)
                 else:
                     nickname = None
