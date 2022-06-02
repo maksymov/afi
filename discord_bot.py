@@ -5,22 +5,22 @@ import urllib.request
 import json
 import bot_settings
 from discord.ext import commands
-from discord_slash import SlashCommand
-from discord_slash import SlashContext
-from discord_slash import SlashCommandOptionType
-from discord_slash.utils import manage_commands
+# from discord_slash import SlashCommand
+# from discord_slash import SlashContext
+# from discord_slash import SlashCommandOptionType
+# from discord_slash.utils import manage_commands
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "afi.settings")
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 import django
 django.setup()
 from core.views import *
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 description = "Бот AFI"
 bot = commands.Bot(command_prefix='!', description=description, intents=discord.Intents.all())
-slash = SlashCommand(bot, auto_register=True, auto_delete=True)
+#slash = SlashCommand(bot, auto_register=True, auto_delete=True)
 
 guild_ids = [305986295375724555]
 
@@ -49,93 +49,93 @@ test_guild_ids = [305986295375724555]
 # ------------
 
 
-@slash.slash(name="топ",
-    description="Топ 10 игроков за указанный период",
-    options=[
-        manage_commands.create_option("начальная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True),
-        manage_commands.create_option("конечная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True)
-    ])
-async def _top(ctx, start, end):
-    msg = get_top(ctx.author.id, ctx.guild.id, start, end)
-    embed = discord.Embed(
-            description=msg[1],
-            colour=0x2ecc71,
-            type='rich')
-    await ctx.channel.send(embed=embed)
-
-
-@slash.slash(name="язык",
-    description="Выбор языка пользователя",
-    options=[{
-        "name": "выбрать",
-        "description": "Выбор языка пользователя",
-        "type": 3,
-        "required": True,
-        "choices": [{
-            "name": "Русский",
-            "value": "ru"
-        },{
-            "name": "English",
-            "value": "en"
-        }]
-    }])
-async def _lang(ctx, lang):
-    msg = set_lang(ctx.author.id, ctx.guild.id, lang)
-    embed = discord.Embed(
-            description=msg,
-            colour=0x2ecc71,
-            type='rich')
-    await ctx.channel.send(embed=embed)
-
-
-@slash.slash(name="награда",
-    description="Вручение и отбор наград",
-    options=[{
-        "name": "действие",
-        "description": "Вручить или отнять",
-        "type": 3,
-        "required": True,
-        "choices": [{
-                "name": "Вручить",
-                "value": "+"
-            },{
-                "name": "Отнять (пока не работает)",
-                "value": "-"
-        }]
-    },{
-        "name": "игрок",
-        "description": "Укажите, кму вручается награда",
-        "type": 6,
-        "required": True,
-    },{
-        "name": "награда",
-        "description": "Укажите награду",
-        "type": 3,
-        "required": True,
-    }])
-async def _award(ctx, action, user, award_title):
-    if action == '+':
-        msg = player_award_add(discord_server_id=ctx.guild.id,
-                user=user,
-                author=ctx.author,
-                award_title=award_title)
-    #if action == '-':
-    #    msg = player_award_delete(ctx.guild.id, start, end)
-        embed = discord.Embed(
-                description=msg[1],
-                colour=0x2ecc71,
-                type='rich')
-        if ctx.author.nick:
-            footer = "Награду вручил %s" % (ctx.author.nick)
-        else:
-            footer = "Награду вручил %s" % (ctx.author.name)
-        embed.set_footer(text=footer)
-        await ctx.channel.send(embed=embed)
-        if msg[0] == 'ok' and msg[2]:
-            try:
-                await user.edit(nick=msg[2])
-            except:
-                pass
+#@slash.slash(name="топ",
+#    description="Топ 10 игроков за указанный период",
+#    options=[
+#        manage_commands.create_option("начальная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True),
+#        manage_commands.create_option("конечная_дата", "Дата в фрмате ГГГГ-ММ-ДД", SlashCommandOptionType.STRING, True)
+#    ])
+#async def _top(ctx, start, end):
+#    msg = get_top(ctx.author.id, ctx.guild.id, start, end)
+#    embed = discord.Embed(
+#            description=msg[1],
+#            colour=0x2ecc71,
+#            type='rich')
+#    await ctx.channel.send(embed=embed)
+#
+#
+#@slash.slash(name="язык",
+#    description="Выбор языка пользователя",
+#    options=[{
+#        "name": "выбрать",
+#        "description": "Выбор языка пользователя",
+#        "type": 3,
+#        "required": True,
+#        "choices": [{
+#            "name": "Русский",
+#            "value": "ru"
+#        },{
+#            "name": "English",
+#            "value": "en"
+#        }]
+#    }])
+#async def _lang(ctx, lang):
+#    msg = set_lang(ctx.author.id, ctx.guild.id, lang)
+#    embed = discord.Embed(
+#            description=msg,
+#            colour=0x2ecc71,
+#            type='rich')
+#    await ctx.channel.send(embed=embed)
+#
+#
+#@slash.slash(name="награда",
+#    description="Вручение и отбор наград",
+#    options=[{
+#        "name": "действие",
+#        "description": "Вручить или отнять",
+#        "type": 3,
+#        "required": True,
+#        "choices": [{
+#                "name": "Вручить",
+#                "value": "+"
+#            },{
+#                "name": "Отнять (пока не работает)",
+#                "value": "-"
+#        }]
+#    },{
+#        "name": "игрок",
+#        "description": "Укажите, кму вручается награда",
+#        "type": 6,
+#        "required": True,
+#    },{
+#        "name": "награда",
+#        "description": "Укажите награду",
+#        "type": 3,
+#        "required": True,
+#    }])
+#async def _award(ctx, action, user, award_title):
+#    if action == '+':
+#        msg = player_award_add(discord_server_id=ctx.guild.id,
+#                user=user,
+#                author=ctx.author,
+#                award_title=award_title)
+#    #if action == '-':
+#    #    msg = player_award_delete(ctx.guild.id, start, end)
+#        embed = discord.Embed(
+#                description=msg[1],
+#                colour=0x2ecc71,
+#                type='rich')
+#        if ctx.author.nick:
+#            footer = "Награду вручил %s" % (ctx.author.nick)
+#        else:
+#            footer = "Награду вручил %s" % (ctx.author.name)
+#        embed.set_footer(text=footer)
+#        await ctx.channel.send(embed=embed)
+#        if msg[0] == 'ok' and msg[2]:
+#            try:
+#                await user.edit(nick=msg[2])
+#            except:
+#                pass
 
 @bot.event
 async def on_ready():

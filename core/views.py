@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils import translation
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from core.models import *
 from datetime import datetime
 

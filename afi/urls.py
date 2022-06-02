@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
+from django.urls import path, re_path
 from django.contrib import admin
 import core.views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    re_path(r'^admin/', admin.site.urls),
 ]
 
 urlpatterns += [

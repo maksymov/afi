@@ -199,25 +199,21 @@
 Установка **Discord.py**:
 
 ```
+sudo apt install libffi-dev libnacl-dev python3-dev git
 git clone git@github.com:maksymov/afi.git
-sudo apt install virtualenv
 cd afi/
-virtualenv -p python3
+python3 -m venv .env
 source .env/bin/activate
-pip install -U discord.py
-sudo apt install git
-pip install --upgrade pip
-pip install django
+pip3 install -r requirements.txt
 python manage.py migrate
 ```
 
-После этого клонируйте репозиторий AFI, и добавте файл bot_settings.py
+После этого добавте файл `bot_settings.py` в корень проекта
 
 ```
 # -*- coding: utf-8 -*-
 
 BOT_TOKEN = 'здесь-вписать-токен-бота'
-DJANGO_URL = 'http://127.0.0.1:8000' # или что там у вас...
 ```
 
 Переходим в корень проекта и запускаем бота:
