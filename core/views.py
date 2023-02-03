@@ -18,13 +18,10 @@ from datetime import datetime
 
 langs = ["ru", "en"]
 
-def set_locale(message=None, discord_server_id=None, discord_id=None):
-    if message:
-        discord_server_id = message.guild.id
-        discord_id = message.author.id
-    player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+def set_locale(guild_id=None, discord_id=None):
+    player, created = Player.objects.get_or_create(discord_server_id=guild_id,
                                                    discord_id=discord_id)
-    lang = Player.objects.get(discord_server_id=discord_server_id, discord_id=discord_id).lang
+    lang = Player.objects.get(discord_server_id=guild_id, discord_id=discord_id).lang
     if lang in langs:
         translation.activate(lang)
         return lang
@@ -41,7 +38,7 @@ def set_lang(discord_id, discord_server_id, lang):
         player.lang = lang
         player.save()
         translation.activate(lang)
-        msg = _(u"Да хоть по-китайски")
+        msg = _(u"Да без проблем )")
     else:
         msg = _(u"Я знаю только русский и английский")
     return msg
@@ -77,6 +74,11 @@ def squad_awards(message):
     for award in awards:
         msg += "%s) `%s` - %s: %s; \n" % (award.order, award.tag, award.title, award.desc)
     return msg
+
+
+def get_award_choices(guild_id):
+    awards = Award.objects.filter(discord_server_id=guild_id).order_by('order')
+    return awards.values_list('title', flat=True)
 
 
 def player_nick(message):
@@ -160,87 +162,46 @@ def player_rank_remove(message):
     return msg
 
 
-def player_award_add(message=None,
+def player_award_add(
         discord_server_id=None,
         user=None,
         author=None,
         award_title=None):
     """Присвоение наград игрокам"""
-    if message:
-        set_locale(message)
-        rights = check_rights(message.author.roles)
-        users = []
-        if rights == 'no':
-            msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-            return msg, users
-        discord_server_id = message.guild.id
-        message_text = message.clean_content
-        award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
-        tag_list = Award.objects.filter(
-            discord_server_id=discord_server_id,
-            ).values_list('tag', flat=True)
-        tags = '[' + ''.join(tag_list) + ']'
-        for user in message.mentions:
-            discord_id = user.id
-            player, created = Player.objects.get_or_create(
-                discord_server_id=discord_server_id,
-                discord_id=discord_id
-                )
-            try:
-                award = Award.objects.get(
-                    discord_server_id=discord_server_id,
-                    title=award_title
-                    )
-                top_award = PlayerAward.objects.filter(player=player).order_by('award__order').last()
-                if top_award:
-                    if award.order >= top_award.award.order:
-                        nickname = award.tag + re.sub(tags, '', user.display_name)
-                    else:
-                        nickname = user.display_name
-                else:
-                    nickname = award.tag + user.display_name
-                users.append({'user': user, 'nickname': nickname})
-            except:
-                msg = ['err', _(u'Нет такой награды')]
-                return msg, users
-            player_award = PlayerAward.objects.create(player=player, award=award)
-        msg = ['ok',]
-        return msg, users
-    else:
-        set_locale(discord_server_id=discord_server_id, discord_id=user.id)
-        rights = check_rights(author.roles)
-        if rights == 'no':
-            msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-            return msg
-        discord_id = user.id
-        tag_list = Award.objects.filter(
-            discord_server_id=discord_server_id,
-            ).values_list('tag', flat=True)
-        tags = '[' + ''.join(tag_list) + ']'
-        player, created = Player.objects.get_or_create(
-            discord_server_id=discord_server_id,
-            discord_id=discord_id
-            )
-        try:
-            award = Award.objects.get(
-                discord_server_id=discord_server_id,
-                title=award_title
-                )
-            top_award = PlayerAward.objects.filter(player=player).order_by('award__order').last()
-            if top_award:
-                if award.order >= top_award.award.order:
-                    nickname = award.tag + re.sub(tags, '', user.display_name)
-                else:
-                    nickname = None
-            else:
-                nickname = award.tag + user.display_name
-        except:
-            msg = ['err', _(u'Нет такой награды')]
-            return msg
-        player_award = PlayerAward.objects.create(player=player, award=award)
-        msg_response = "<@!%s> получил награду `%s %s`" % (user.id, award.tag, award.title)
-        msg = ['ok', msg_response, nickname]
+    set_locale(guild_id=discord_server_id, discord_id=user.id)
+    rights = check_rights(author.roles)
+    if rights == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
         return msg
+    discord_id = user.id
+    tag_list = Award.objects.filter(
+        discord_server_id=discord_server_id,
+        ).values_list('tag', flat=True)
+    tags = '[' + ''.join(tag_list) + ']'
+    player, created = Player.objects.get_or_create(
+        discord_server_id=discord_server_id,
+        discord_id=discord_id
+        )
+    try:
+        award = Award.objects.get(
+            discord_server_id=discord_server_id,
+            title=award_title
+            )
+        top_award = PlayerAward.objects.filter(player=player).order_by('award__order').last()
+        if top_award:
+            if award.order >= top_award.award.order:
+                nickname = award.tag + re.sub(tags, '', user.display_name)
+            else:
+                nickname = None
+        else:
+            nickname = award.tag + user.display_name
+    except:
+        msg = ['err', _(u'Нет такой награды')]
+        return msg
+    player_award = PlayerAward.objects.create(player=player, award=award)
+    msg_response = "<@!%s> получил награду %s %s" % (user.id, award.tag, award.title)
+    msg = ['ok', msg_response, nickname]
+    return msg
 
 
 def player_award_delete(message):
@@ -445,69 +406,67 @@ def rank_edit(message):
     return msg
 
 
-def player_stat(message):
-    lang = set_locale(message)
+def player_stat(guild_id, user):
+    discord_id = user.id
+    lang = set_locale(guild_id, discord_id)
     msg = ""
-    discord_server_id =message.guild.id
-    for user in message.mentions:
-        # получаю статку игрока с ThunderSkill
-        discord_id = user.id
-        user_url="https://thunderskill.com"
-        if re.search(r'\<.*?\>',user.display_name):
-            # получаю ник из треугольных скобок
-            username = re.search(r'\<.*?\>',user.display_name).group(0)[1:-1]
-        else:
-            # получаю привязанный ник из базы данных
-            player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                    discord_id=discord_id)
-            username = player.wt_nick
-        if username:
-            # если есть ник - делаю запрос на thunderskill
-            base_url = "https://thunderskill.com/ru/stat/"
-            url = "https://thunderskill.com/ru/stat/" + username + "/export/json"
-            headers = {}
-            headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0"
-            req = urllib.request.Request(url, headers = headers)
-            try:
-                ts_response = urllib.request.urlopen(req)
-            except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
-                    + '[' + _(u'Требования к никам') + ']'
-                    if lang == 'ru':
-                        msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
-                    else:
-                        msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
-                else:
-                    msg += 'ThunderSkill error: ' + str(e.code) + ' \n'
-                ts_response = None
-            except:
-                msg += '[' + _(u'Требования к никам') + ']'
+    # получаю статку игрока с ThunderSkill
+    user_url="https://thunderskill.com"
+    if re.search(r'\<.*?\>',user.display_name):
+        # получаю ник из треугольных скобок
+        username = re.search(r'\<.*?\>',user.display_name).group(0)[1:-1]
+    else:
+        # получаю привязанный ник из базы данных
+        player, created = Player.objects.get_or_create(discord_server_id=guild_id,
+                discord_id=discord_id)
+        username = player.wt_nick
+    if username:
+        # если есть ник - делаю запрос на thunderskill
+        base_url = "https://thunderskill.com/ru/stat/"
+        url = "https://thunderskill.com/ru/stat/" + username + "/export/json"
+        headers = {}
+        headers['User-Agent'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0"
+        req = urllib.request.Request(url, headers = headers)
+        try:
+            ts_response = urllib.request.urlopen(req)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
+                + '[' + _(u'Требования к никам') + ']'
                 if lang == 'ru':
                     msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
                 else:
                     msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
-                ts_response = None
-            if ts_response:
-                json_data = urllib.request.urlopen(req).read()
-                data = json.loads(json_data.decode())
-                user_url = base_url + username
-                msg += user.mention + ' | [ThunderSkill](%s)\n' % (user_url) \
-                        + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
-                        + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
-                        + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
-        else:
+            else:
+                msg += 'ThunderSkill error: ' + str(e.code) + ' \n'
+            ts_response = None
+        except:
             msg += '[' + _(u'Требования к никам') + ']'
             if lang == 'ru':
                 msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
             else:
                 msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
-        # получаю список званий игрока
-        ranks = player_ranks(discord_server_id, discord_id)
-        msg += _(u'**Звания:** ') + ranks
-        # получаю список наград игрока
-        awards = player_awards(discord_server_id, discord_id)
-        msg += _(u' **Награды:** ') + awards + '\n' + '\n'
+            ts_response = None
+        if ts_response:
+            json_data = urllib.request.urlopen(req).read()
+            data = json.loads(json_data.decode())
+            user_url = base_url + username
+            msg += user.mention + ' | [ThunderSkill](%s)\n' % (user_url) \
+                    + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
+                    + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
+                    + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
+    else:
+        msg += '[' + _(u'Требования к никам') + ']'
+        if lang == 'ru':
+            msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
+        else:
+            msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
+    # получаю список званий игрока
+    ranks = player_ranks(guild_id, discord_id)
+    msg += _(u'**Звания:** ') + ranks
+    # получаю список наград игрока
+    awards = player_awards(guild_id, discord_id)
+    msg += _(u' **Награды:** ') + awards + '\n' + '\n'
     return msg
 
 
