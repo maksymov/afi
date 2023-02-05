@@ -60,8 +60,7 @@ def squad_awards(locale, guild_id):
     return msg
 
 
-def get_award_choices(locale, guild_id):
-    lang = set_locale(locale)
+def get_award_choices(guild_id):
     awards = Award.objects.filter(guild_id=guild_id).order_by('order')
     return awards.values_list('title', flat=True)
 
