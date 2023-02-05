@@ -7,10 +7,10 @@ from django.db import models
 class Squad(models.Model):
     """Модель полка WarThunder
 
-    discord_server_id - адрес сервера в дискорде
+    guild_id - адрес сервера в дискорде
     squad_url - ссылка на полк в ThunderSkill
     """
-    discord_server_id = models.CharField(max_length=255)
+    guild_id = models.CharField(max_length=255)
     squad_url = models.CharField(max_length=255)
 
 
@@ -42,14 +42,14 @@ class Award(models.Model):
     полковом сражении или за первые три-пять мест по итогам сезона
     полковых. Награды выдаются на время (неделя, сезон...).
 
-    discord_server_id - идентификатор сервера в дискорде
+    guild_id - идентификатор сервера в дискорде
     tag - значёк награды
     tite - название награды
     desc - описание, за что присваивается награда
     date_from - дата вручения награды
     duration - срок действия, указывается в днях
     """
-    discord_server_id = models.CharField(max_length=255)
+    guild_id = models.CharField(max_length=255)
     tag = models.CharField(max_length=8)
     title = models.CharField(max_length=255)
     desc = models.TextField(max_length=600, blank=True)
@@ -58,8 +58,8 @@ class Award(models.Model):
 
 class Player(models.Model):
     """Игроки"""
-    discord_server_id = models.CharField(max_length=255)
-    discord_id = models.CharField(max_length=255)
+    guild_id = models.CharField(max_length=255)
+    user_id = models.CharField(max_length=255)
     lang = models.CharField(max_length=255, blank=True)
     wt_nick = models.CharField(max_length=50, blank=True)
 

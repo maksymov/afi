@@ -18,10 +18,10 @@ from datetime import datetime
 
 langs = ["ru", "en"]
 
-def set_locale(guild_id=None, discord_id=None):
-    player, created = Player.objects.get_or_create(discord_server_id=guild_id,
-                                                   discord_id=discord_id)
-    lang = Player.objects.get(discord_server_id=guild_id, discord_id=discord_id).lang
+def set_locale(guild_id, user_id):
+    player, created = Player.objects.get_or_create(guild_id=guild_id,
+                                                   user_id=user_id)
+    lang = Player.objects.get(guild_id=guild_id, user_id=user_id).lang
     if lang in langs:
         translation.activate(lang)
         return lang
@@ -45,10 +45,12 @@ def set_lang(discord_id, discord_server_id, lang):
 
 
 def check_rights(roles):
-    rights = 'no'
+    rights = ['no', 'no']
     for role in roles:
         if role.name == u'[AFI] Звания и награды':
-            rights = 'yes'
+            rights[0] = 'yes'
+        if role.name == u'[AFI] Администрирование наград':
+            rights[1] = 'yes'
     return rights
 
 
@@ -64,10 +66,8 @@ def squad_ranks(message):
     return msg
 
 
-def squad_awards(message):
-    set_locale(message)
-    discord_server_id =message.guild.id
-    awards = Award.objects.filter(discord_server_id=discord_server_id).order_by('order')
+def squad_awards(guild_id):
+    awards = Award.objects.filter(guild_id=guild_id).order_by('order')
     msg = ""
     if not awards:
         msg = _(u"В базе данных полка ещё не созданы награды. Создайте их!")
@@ -77,34 +77,18 @@ def squad_awards(message):
 
 
 def get_award_choices(guild_id):
-    awards = Award.objects.filter(discord_server_id=guild_id).order_by('order')
+    awards = Award.objects.filter(guild_id=guild_id).order_by('order')
     return awards.values_list('title', flat=True)
 
 
-def player_nick(message):
+def set_player_nick(guild_id, user_id, nick):
     """Привязка своего ника"""
-    lang = set_locale(message)
-    discord_server_id =message.guild.id
-    user = message.author
-    discord_id = user.id
-    message_text = message.clean_content
-
-    if re.search(r'\(.*?\)',message_text):
-        wt_nick = re.search(r'\(.*?\)',message_text).group(0)[1:-1]
-        player, created = Player.objects.get_or_create(
-                discord_server_id=discord_server_id,
-                discord_id=discord_id,
-                )
-        player.wt_nick = wt_nick
-        player.save()
-        msg = user.mention + '' + _(u'Аккаунт WarThunder привязан!')
-    else:
-        msg = _(u'Ник должен быть в круглых скобках. Вот так: `!ник (мой_игровой_ник)`') + ' \n'
-        msg += '[' + _(u'Требования к никам') + ']'
-        if lang == 'ru':
-            msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
-        else:
-            msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
+    player, created = Player.objects.get_or_create(
+        guild_id=guild_id,
+        user_id=user_id)
+    player.wt_nick = nick
+    player.save()
+    msg = "Аккаунт WarThunder `%s` привязан!" % (nick)
     return msg
 
 
@@ -112,7 +96,7 @@ def player_rank_add(message):
     """Присвоение званий игрокам"""
     set_locale(message)
     rights = check_rights(message.author.roles)
-    if rights == 'no':
+    if rights[0] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
         return msg
     discord_server_id =message.guild.id
@@ -139,7 +123,7 @@ def player_rank_remove(message):
     """Разжалование игрока в звании"""
     set_locale(message)
     rights = check_rights(message.author.roles)
-    if rights == 'no':
+    if rights[0] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
         return msg
     discord_server_id =message.guild.id
@@ -163,28 +147,28 @@ def player_rank_remove(message):
 
 
 def player_award_add(
-        discord_server_id=None,
+        guild_id=None,
         user=None,
         author=None,
         award_title=None):
-    """Присвоение наград игрокам"""
-    set_locale(guild_id=discord_server_id, discord_id=user.id)
+    """Вручение наград игрокам"""
+    set_locale(guild_id=guild_id, user_id=user.id)
     rights = check_rights(author.roles)
-    if rights == 'no':
+    if rights[0] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
         return msg
-    discord_id = user.id
+    user_id = user.id
     tag_list = Award.objects.filter(
-        discord_server_id=discord_server_id,
+        guild_id=guild_id,
         ).values_list('tag', flat=True)
     tags = '[' + ''.join(tag_list) + ']'
     player, created = Player.objects.get_or_create(
-        discord_server_id=discord_server_id,
-        discord_id=discord_id
+        guild_id=guild_id,
+        user_id=user_id
         )
     try:
         award = Award.objects.get(
-            discord_server_id=discord_server_id,
+            guild_id=guild_id,
             title=award_title
             )
         top_award = PlayerAward.objects.filter(player=player).order_by('award__order').last()
@@ -200,48 +184,48 @@ def player_award_add(
         return msg
     player_award = PlayerAward.objects.create(player=player, award=award)
     msg_response = "<@!%s> получил награду %s %s" % (user.id, award.tag, award.title)
+    msg = ['ok', msg_response, None]
+    return msg
+
+
+def player_award_delete(
+        guild_id=None,
+        user=None,
+        author=None,
+        award_title=None):
+    """Удаление наград игроков"""
+    set_locale(guild_id, user_id=user.id)
+    users = []
+    rights = check_rights(author.roles)
+    if rights[0] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+        return msg, users
+    tag_list = Award.objects.filter(
+        guild_id=guild_id,
+        ).values_list('tag', flat=True)
+    tags = '[' + ''.join(tag_list) + ']'
+    user_id = user.id
+    player, created = Player.objects.get_or_create(guild_id=guild_id,
+                                                   user_id=user_id)
+    try:
+        award = Award.objects.get(guild_id=guild_id, title=award_title)
+        nickname = re.sub(tags, '', user.display_name)
+    except:
+        msg = ['err', _(u'Нет такой награды')]
+        return msg
+    try:
+        player_award = PlayerAward.objects.filter(player=player, award=award).order_by('-date_from')[0].delete()
+    except:
+        msg = ['err', _(u'У игрока нет такой награды')]
+        return msg
+    msg_response = "<@!%s> лишился награды %s %s" % (user_id, award.tag, award.title)
     msg = ['ok', msg_response, nickname]
     return msg
 
 
-def player_award_delete(message):
-    """Удаление наград игроков"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    users = []
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-        return msg, users
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    award_title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    tag_list = Award.objects.filter(
-        discord_server_id=discord_server_id,
-        ).values_list('tag', flat=True)
-    tags = '[' + ''.join(tag_list) + ']'
-    for user in message.mentions:
-        discord_id = user.id
-        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                       discord_id=discord_id)
-        try:
-            award = Award.objects.get(discord_server_id=discord_server_id, title=award_title)
-            nickname = re.sub(tags, '', user.display_name)
-            users.append({'user': user, 'nickname': nickname})
-        except:
-            msg = ['err', _(u'Нет такой награды')]
-            return msg, users
-        try:
-            player_award = PlayerAward.objects.filter(player=player, award=award).order_by('-date_from')[0].delete()
-        except:
-            msg = ['err', _(u'У игрока нет такой награды')]
-            return msg, users
-    msg = ['ok',]
-    return msg, users
-
-
-def player_ranks(discord_server_id, discord_id):
-    player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                   discord_id=discord_id)
+def player_ranks(guild_id, user_id):
+    player, created = Player.objects.get_or_create(guild_id=guild_id,
+                                                   user_id=user_id)
     ranks = PlayerRank.objects.filter(player=player)
     ranks_str = ""
     if ranks:
@@ -252,9 +236,9 @@ def player_ranks(discord_server_id, discord_id):
     return ranks_str
 
 
-def player_awards(discord_server_id, discord_id, start_date=None, fin_date=None):
-    player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                   discord_id=discord_id)
+def player_awards(guild_id, user_id, start_date=None, fin_date=None):
+    player, created = Player.objects.get_or_create(guild_id=guild_id,
+                                                   user_id=user_id)
     award_list = PlayerAward.objects.filter(player=player).values('award__tag')
     if start_date:
         award_list = award_list.filter(date_from__gte=start_date)
@@ -270,71 +254,69 @@ def player_awards(discord_server_id, discord_id, start_date=None, fin_date=None)
     return awards_str
 
 
-def award_create(message):
+def award_create(guild_id, user, award_title, award_desc, award_icon, award_order):
     """Создание новой награды"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+    rights = check_rights(user.roles)
+    if rights[1] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
         return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
-    title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-    order = message_text[message_text.find("{") + 1:message_text.find("}")]
-    if Award.objects.filter(discord_server_id=discord_server_id).filter(
-            Q(tag=tag) | Q(title=title)).exists():
+    if Award.objects.filter(guild_id=guild_id).filter(
+            Q(tag=award_icon) | Q(title=award_title)).exists():
         msg = ['err', _(u"Такая награда уже есть. Названия и значки наград не должны повторяться")]
         return msg
-    Award.objects.create(discord_server_id=discord_server_id,
-                         tag=tag,
-                         title=title,
-                         desc=desc,
-                         order=order)
-    msg = ['ok']
+    Award.objects.create(guild_id=guild_id,
+                         tag=award_icon,
+                         title=award_title,
+                         desc=award_desc,
+                         order=award_order)
+    text = '**Создана новая полковая награда:** %s. %s %s | %s' % (
+        award_order,
+        award_icon,
+        award_title,
+        award_desc
+    )
+    msg = ['ok', text]
     return msg
 
 
-def award_delete(message):
+def award_delete(guild_id, user, award_title):
     """Удаление награды"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+    rights = check_rights(user.roles)
+    if rights[1] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
         return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    title = message_text[message_text.find("(") + 1:message_text.find(")")]
     try:
-        award = Award.objects.get(discord_server_id=discord_server_id, title=title)
+        award = Award.objects.get(guild_id=guild_id, title=award_title)
         award.delete()
-        msg = ['ok']
+        text = '**Удалена полковая награда:** %s %s' % (
+            award.tag,
+            award.title,
+        )
+        msg = ['ok', text]
     except:
         msg = ['err', _(u"Нет такой награды")]
     return msg
 
 
-def award_edit(message):
+def award_edit(guild_id, user, award_title, award_desc, award_icon, award_order):
     """Редактирование награды"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+    rights = check_rights(user.roles)
+    if rights[1] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
         return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    title = message_text[message_text.find("(") + 1:message_text.find(")")]
     try:
-        award = Award.objects.get(discord_server_id=discord_server_id, title=title)
-        tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
-        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-        order = message_text[message_text.find("{") + 1:message_text.find("}")]
-        award.tag = tag
-        award.desc = desc
-        award.order = order
+        award = Award.objects.get(guild_id=guild_id, title=award_title)
+        award.tag = award_icon
+        award.desc = award_desc
+        award.order = award_order
         award.save()
-        msg = ['ok']
+        text = '**Изменена полковая награда:** %s. %s %s | %s' % (
+            award_order,
+            award_icon,
+            award_title,
+            award_desc
+        )
+        msg = ['ok', text]
     except:
         msg = ['err', _(u"Нет такой награды или команда дана неверно. Смотри описание бота.")]
     return msg
@@ -344,8 +326,8 @@ def rank_create(message):
     """Создание нового звания"""
     set_locale(message)
     rights = check_rights(message.author.roles)
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+    if rights[1] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
         return msg
     discord_server_id =message.guild.id
     message_text = message.clean_content
@@ -368,8 +350,8 @@ def rank_delete(message):
     """Удаление звания"""
     set_locale(message)
     rights = check_rights(message.author.roles)
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+    if rights[1] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
         return msg
     discord_server_id =message.guild.id
     message_text = message.clean_content
@@ -387,8 +369,8 @@ def rank_edit(message):
     """Изменение звания"""
     set_locale(message)
     rights = check_rights(message.author.roles)
-    if rights == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+    if rights[1] == 'no':
+        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
         return msg
     discord_server_id =message.guild.id
     message_text = message.clean_content
@@ -407,8 +389,8 @@ def rank_edit(message):
 
 
 def player_stat(guild_id, user):
-    discord_id = user.id
-    lang = set_locale(guild_id, discord_id)
+    user_id = user.id
+    lang = set_locale(guild_id, user_id)
     msg = ""
     # получаю статку игрока с ThunderSkill
     user_url="https://thunderskill.com"
@@ -417,8 +399,8 @@ def player_stat(guild_id, user):
         username = re.search(r'\<.*?\>',user.display_name).group(0)[1:-1]
     else:
         # получаю привязанный ник из базы данных
-        player, created = Player.objects.get_or_create(discord_server_id=guild_id,
-                discord_id=discord_id)
+        player, created = Player.objects.get_or_create(guild_id=guild_id,
+                user_id=user_id)
         username = player.wt_nick
     if username:
         # если есть ник - делаю запрос на thunderskill
@@ -462,34 +444,42 @@ def player_stat(guild_id, user):
         else:
             msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
     # получаю список званий игрока
-    ranks = player_ranks(guild_id, discord_id)
+    ranks = player_ranks(guild_id, user_id)
     msg += _(u'**Звания:** ') + ranks
     # получаю список наград игрока
-    awards = player_awards(guild_id, discord_id)
+    awards = player_awards(guild_id, user_id)
     msg += _(u' **Награды:** ') + awards + '\n' + '\n'
     return msg
 
 
-def get_top(discord_id, discord_server_id, start, end):
-    set_locale(discord_server_id=discord_server_id, discord_id=discord_id)
+def get_top(guild_id, start, end):
+    seasons = [[1,2], [3,4], [5,6], [7,8], [9,10], [11,12]]
+    year = datetime.now().year
+    month = datetime.now().month
+    if not start:
+        month = [item for item in seasons if month in item][0][0]
+        start = "%s-%s-01" % (year, month)
+    if not end:
+        end = datetime.now().strftime("%Y-%m-%d")
     txt = "**" + _(u'ТОП 10 ИГРОКОВ') + "** \n"
+    txt += "С %s по %s \n" % (start, end) 
     try:
         start_date = datetime.strptime(start, "%Y-%m-%d").date()
         end_date = datetime.strptime(end, "%Y-%m-%d").date()
-        players = Player.objects.filter(discord_server_id=discord_server_id)
+        players = Player.objects.filter(guild_id=guild_id)
         top_list = PlayerAward.objects.filter(
                 player__in=players,
                 date_from__gte=start_date,
                 date_from__lte=end_date
-            ).values('player__discord_id').annotate(awards=Count('player')).order_by('-awards')
+            ).values('player__user_id').annotate(awards=Count('player')).order_by('-awards')
         for player in top_list[:10]:
             awards = player_awards(
-                    discord_server_id,
-                    player['player__discord_id'],
+                    guild_id,
+                    player['player__user_id'],
                     start_date,
                     end_date,
                     )
-            username = "<@!%s>" % (player['player__discord_id'])
+            username = "<@!%s>" % (player['player__user_id'])
             awards_count = str(player['awards'])
             #x.add_row([username, awards_count, awards])
             txt += "%s | %s | %s \n" % (awards_count, username, awards)
