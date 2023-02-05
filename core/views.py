@@ -18,30 +18,13 @@ from datetime import datetime
 
 langs = ["ru", "en"]
 
-def set_locale(guild_id, user_id):
-    player, created = Player.objects.get_or_create(guild_id=guild_id,
-                                                   user_id=user_id)
-    lang = Player.objects.get(guild_id=guild_id, user_id=user_id).lang
-    if lang in langs:
-        translation.activate(lang)
-        return lang
+def set_locale(locale):
+    if locale in langs:
+        translation.activate(locale)
+        return locale
     else:
         translation.activate("ru")
-        return lang
-
-
-def set_lang(discord_id, discord_server_id, lang):
-    set_locale(discord_server_id=discord_server_id, discord_id=discord_id)
-    player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                   discord_id=discord_id)
-    if lang in langs:
-        player.lang = lang
-        player.save()
-        translation.activate(lang)
-        msg = _(u"Да без проблем )")
-    else:
-        msg = _(u"Я знаю только русский и английский")
-    return msg
+        return locale
 
 
 def check_rights(roles):
@@ -54,19 +37,20 @@ def check_rights(roles):
     return rights
 
 
-def squad_ranks(message):
-    set_locale(message)
-    discord_server_id =message.guild.id
-    ranks = Rank.objects.filter(discord_server_id=discord_server_id)
-    msg = ""
-    if not ranks:
-        msg = _(u"В базе данных полка ещё не созданы звания. Создайте их!")
-    for rank in ranks:
-        msg += "`%s` - %s: %s; \n" % (rank.tag, rank.title, rank.desc)
-    return msg
+#def squad_ranks(message):
+#    set_locale(message)
+#    discord_server_id =message.guild.id
+#    ranks = Rank.objects.filter(discord_server_id=discord_server_id)
+#    msg = ""
+#    if not ranks:
+#        msg = _(u"В базе данных полка ещё не созданы звания. Создайте их!")
+#    for rank in ranks:
+#        msg += "`%s` - %s: %s; \n" % (rank.tag, rank.title, rank.desc)
+#    return msg
 
 
-def squad_awards(guild_id):
+def squad_awards(locale, guild_id):
+    lang = set_locale(locale)
     awards = Award.objects.filter(guild_id=guild_id).order_by('order')
     msg = ""
     if not awards:
@@ -76,13 +60,15 @@ def squad_awards(guild_id):
     return msg
 
 
-def get_award_choices(guild_id):
+def get_award_choices(locale, guild_id):
+    lang = set_locale(locale)
     awards = Award.objects.filter(guild_id=guild_id).order_by('order')
     return awards.values_list('title', flat=True)
 
 
-def set_player_nick(guild_id, user_id, nick):
+def set_player_nick(locale, guild_id, user_id, nick):
     """Привязка своего ника"""
+    lang = set_locale(locale)
     player, created = Player.objects.get_or_create(
         guild_id=guild_id,
         user_id=user_id)
@@ -92,67 +78,67 @@ def set_player_nick(guild_id, user_id, nick):
     return msg
 
 
-def player_rank_add(message):
-    """Присвоение званий игрокам"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights[0] == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-        return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    for user in message.mentions:
-        discord_id = user.id
-        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                       discord_id=discord_id)
-        try:
-            rank = Rank.objects.get(discord_server_id=discord_server_id, title=rank_title)
-        except:
-            msg = ['err', _(u'Нет такого звания')]
-            return msg
-        try:
-            player_rank = PlayerRank.objects.get(player=player, rank=rank)
-        except:
-            player_rank = PlayerRank.objects.create(player=player, rank=rank)
-    msg = ['ok']
-    return msg
+#def player_rank_add(message):
+#    """Присвоение званий игрокам"""
+#    set_locale(message)
+#    rights = check_rights(message.author.roles)
+#    if rights[0] == 'no':
+#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+#        return msg
+#    discord_server_id =message.guild.id
+#    message_text = message.clean_content
+#    rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
+#    for user in message.mentions:
+#        discord_id = user.id
+#        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+#                                                       discord_id=discord_id)
+#        try:
+#            rank = Rank.objects.get(discord_server_id=discord_server_id, title=rank_title)
+#        except:
+#            msg = ['err', _(u'Нет такого звания')]
+#            return msg
+#        try:
+#            player_rank = PlayerRank.objects.get(player=player, rank=rank)
+#        except:
+#            player_rank = PlayerRank.objects.create(player=player, rank=rank)
+#    msg = ['ok']
+#    return msg
 
 
-def player_rank_remove(message):
-    """Разжалование игрока в звании"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights[0] == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-        return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    for user in message.mentions:
-        discord_id = user.id
-        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-                                                       discord_id=discord_id)
-        try:
-            rank = Rank.objects.get(discord_server_id=discord_server_id, title=rank_title)
-        except:
-            msg = ['err', _(u'Нет такого звания')]
-            return msg
-        try:
-            player_rank = PlayerRank.objects.get(player=player, rank=rank).delete()
-        except:
-            pass
-    msg = ['ok']
-    return msg
+#def player_rank_remove(message):
+#    """Разжалование игрока в звании"""
+#    set_locale(message)
+#    rights = check_rights(message.author.roles)
+#    if rights[0] == 'no':
+#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
+#        return msg
+#    discord_server_id =message.guild.id
+#    message_text = message.clean_content
+#    rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
+#    for user in message.mentions:
+#        discord_id = user.id
+#        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
+#                                                       discord_id=discord_id)
+#        try:
+#            rank = Rank.objects.get(discord_server_id=discord_server_id, title=rank_title)
+#        except:
+#            msg = ['err', _(u'Нет такого звания')]
+#            return msg
+#        try:
+#            player_rank = PlayerRank.objects.get(player=player, rank=rank).delete()
+#        except:
+#            pass
+#    msg = ['ok']
+#    return msg
 
 
-def player_award_add(
+def player_award_add(locale,
         guild_id=None,
         user=None,
         author=None,
         award_title=None):
     """Вручение наград игрокам"""
-    set_locale(guild_id=guild_id, user_id=user.id)
+    lang = set_locale(locale)
     rights = check_rights(author.roles)
     if rights[0] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
@@ -188,13 +174,13 @@ def player_award_add(
     return msg
 
 
-def player_award_delete(
+def player_award_delete(locale,
         guild_id=None,
         user=None,
         author=None,
         award_title=None):
     """Удаление наград игроков"""
-    set_locale(guild_id, user_id=user.id)
+    lang = set_locale(locale)
     users = []
     rights = check_rights(author.roles)
     if rights[0] == 'no':
@@ -223,20 +209,21 @@ def player_award_delete(
     return msg
 
 
-def player_ranks(guild_id, user_id):
-    player, created = Player.objects.get_or_create(guild_id=guild_id,
-                                                   user_id=user_id)
-    ranks = PlayerRank.objects.filter(player=player)
-    ranks_str = ""
-    if ranks:
-        for i in ranks:
-            ranks_str += i.rank.tag + ' | '
-    else:
-        ranks_str = _(u"нет")
-    return ranks_str
+#def player_ranks(guild_id, user_id):
+#    player, created = Player.objects.get_or_create(guild_id=guild_id,
+#                                                   user_id=user_id)
+#    ranks = PlayerRank.objects.filter(player=player)
+#    ranks_str = ""
+#    if ranks:
+#        for i in ranks:
+#            ranks_str += i.rank.tag + ' | '
+#    else:
+#        ranks_str = _(u"нет")
+#    return ranks_str
 
 
-def player_awards(guild_id, user_id, start_date=None, fin_date=None):
+def player_awards(locale, guild_id, user_id, start_date=None, fin_date=None):
+    lang = set_locale(locale)
     player, created = Player.objects.get_or_create(guild_id=guild_id,
                                                    user_id=user_id)
     award_list = PlayerAward.objects.filter(player=player).values('award__tag')
@@ -254,8 +241,9 @@ def player_awards(guild_id, user_id, start_date=None, fin_date=None):
     return awards_str
 
 
-def award_create(guild_id, user, award_title, award_desc, award_icon, award_order):
+def award_create(locale, guild_id, user, award_title, award_desc, award_icon, award_order):
     """Создание новой награды"""
+    lang = set_locale(locale)
     rights = check_rights(user.roles)
     if rights[1] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
@@ -279,8 +267,9 @@ def award_create(guild_id, user, award_title, award_desc, award_icon, award_orde
     return msg
 
 
-def award_delete(guild_id, user, award_title):
+def award_delete(locale, guild_id, user, award_title):
     """Удаление награды"""
+    lang = set_locale(locale)
     rights = check_rights(user.roles)
     if rights[1] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
@@ -298,8 +287,9 @@ def award_delete(guild_id, user, award_title):
     return msg
 
 
-def award_edit(guild_id, user, award_title, award_desc, award_icon, award_order):
+def award_edit(locale, guild_id, user, award_title, award_desc, award_icon, award_order):
     """Редактирование награды"""
+    lang = set_locale(locale)
     rights = check_rights(user.roles)
     if rights[1] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
@@ -322,75 +312,75 @@ def award_edit(guild_id, user, award_title, award_desc, award_icon, award_order)
     return msg
 
 
-def rank_create(message):
-    """Создание нового звания"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights[1] == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
-        return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
-    title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-    if Rank.objects.filter(discord_server_id=discord_server_id).filter(
-            Q(tag=tag) | Q(title=title)).exists():
-        msg = ['err', _(u"Такое звание уже есть. Названия и значки званий не должны повторяться")]
-        return msg
-    Rank.objects.create(discord_server_id=discord_server_id,
-                        tag=tag,
-                        title=title,
-                        desc=desc)
-    msg = ['ok']
-    return msg
+#def rank_create(message):
+#    """Создание нового звания"""
+#    set_locale(message)
+#    rights = check_rights(message.author.roles)
+#    if rights[1] == 'no':
+#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
+#        return msg
+#    discord_server_id =message.guild.id
+#    message_text = message.clean_content
+#    tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
+#    title = message_text[message_text.find("(") + 1:message_text.find(")")]
+#    desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+#    if Rank.objects.filter(discord_server_id=discord_server_id).filter(
+#            Q(tag=tag) | Q(title=title)).exists():
+#        msg = ['err', _(u"Такое звание уже есть. Названия и значки званий не должны повторяться")]
+#        return msg
+#    Rank.objects.create(discord_server_id=discord_server_id,
+#                        tag=tag,
+#                        title=title,
+#                        desc=desc)
+#    msg = ['ok']
+#    return msg
 
 
-def rank_delete(message):
-    """Удаление звания"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights[1] == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
-        return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    try:
-        Rank.objects.get(discord_server_id=discord_server_id,
-                title=title).delete()
-        msg = ['ok']
-    except:
-        msg = ['err', _(u"Нет такого звания")]
-    return msg
+#def rank_delete(message):
+#    """Удаление звания"""
+#    set_locale(message)
+#    rights = check_rights(message.author.roles)
+#    if rights[1] == 'no':
+#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
+#        return msg
+#    discord_server_id =message.guild.id
+#    message_text = message.clean_content
+#    title = message_text[message_text.find("(") + 1:message_text.find(")")]
+#    try:
+#        Rank.objects.get(discord_server_id=discord_server_id,
+#                title=title).delete()
+#        msg = ['ok']
+#    except:
+#        msg = ['err', _(u"Нет такого звания")]
+#    return msg
 
 
-def rank_edit(message):
-    """Изменение звания"""
-    set_locale(message)
-    rights = check_rights(message.author.roles)
-    if rights[1] == 'no':
-        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
-        return msg
-    discord_server_id =message.guild.id
-    message_text = message.clean_content
-    title = message_text[message_text.find("(") + 1:message_text.find(")")]
-    try:
-        rank = Rank.objects.get(discord_server_id=discord_server_id, title=title)
-        tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
-        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
-        rank.tag = tag
-        rank.desc = desc
-        rank.save()
-        msg = ['ok']
-    except:
-        msg = ['err', _(u"Нет такого звания")]
-    return msg
+#def rank_edit(message):
+#    """Изменение звания"""
+#    set_locale(message)
+#    rights = check_rights(message.author.roles)
+#    if rights[1] == 'no':
+#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Администрирование наград'.")]
+#        return msg
+#    discord_server_id =message.guild.id
+#    message_text = message.clean_content
+#    title = message_text[message_text.find("(") + 1:message_text.find(")")]
+#    try:
+#        rank = Rank.objects.get(discord_server_id=discord_server_id, title=title)
+#        tag = re.sub('[￼￼￼￼￼￼️￼￼￼️]', '', message_text[message_text.find("[") + 1:message_text.find("]")])
+#        desc = message_text[message_text.find("<") + 1:message_text.find(">")]
+#        rank.tag = tag
+#        rank.desc = desc
+#        rank.save()
+#        msg = ['ok']
+#    except:
+#        msg = ['err', _(u"Нет такого звания")]
+#    return msg
 
 
-def player_stat(guild_id, user):
+def player_stat(locale, guild_id, user):
     user_id = user.id
-    lang = set_locale(guild_id, user_id)
+    lang = set_locale(locale)
     msg = ""
     # получаю статку игрока с ThunderSkill
     user_url="https://thunderskill.com"
@@ -452,7 +442,8 @@ def player_stat(guild_id, user):
     return msg
 
 
-def get_top(guild_id, start, end):
+def get_top(locale, guild_id, start, end):
+    lang = set_locale(locale)
     seasons = [[1,2], [3,4], [5,6], [7,8], [9,10], [11,12]]
     year = datetime.now().year
     month = datetime.now().month

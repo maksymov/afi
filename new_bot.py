@@ -58,7 +58,8 @@ async def nick(
         interaction: discord.Interaction,
         nick: str):
     """Привязка игрового ника"""
-    msg = set_player_nick(interaction.guild_id, interaction.user.id, nick)
+    locale = interaction.locale[:2]
+    msg = set_player_nick(locale, interaction.guild_id, interaction.user.id, nick)
     embed = discord.Embed(
         description=msg,
         colour=0x2ecc71,
@@ -76,10 +77,11 @@ async def nick(
 @app_commands.describe(player='Выбери игрока для просмотра статки')
 async def stat(interaction: discord.Interaction, player: Optional[discord.Member] = None):
     """Статистика игрока"""
+    locale = interaction.locale[:2]
     user = interaction.user
     if player:
         user = player
-    msg = player_stat(interaction.guild_id, user)
+    msg = player_stat(locale, interaction.guild_id, user)
     embed = discord.Embed(
         description=msg,
         colour=0x2ecc71,
@@ -113,10 +115,11 @@ async def award(interaction: discord.Interaction,
                 player: discord.Member,
                 award_title: str):
     """Вручение и снятие наград"""
+    locale = interaction.locale[:2]
     # ----------------
     # Вручение награды
     if action.value == '+':
-        msg = player_award_add(
+        msg = player_award_add(locale,
             guild_id=interaction.guild_id,
             user=player,
             author=interaction.user,
@@ -125,7 +128,7 @@ async def award(interaction: discord.Interaction,
     # --------------
     # Снятие награды
     if action.value == '-':
-        msg = player_award_delete(
+        msg = player_award_delete(locale,
             guild_id=interaction.guild_id,
             user=player,
             author=interaction.user,
@@ -157,7 +160,8 @@ async def award(interaction: discord.Interaction,
 @client.tree.command(name='полковые_награды_список')
 async def awards(interaction: discord.Interaction):
     """Список полковых наград"""
-    msg = squad_awards(interaction.guild_id)
+    locale = interaction.locale[:2]
+    msg = squad_awards(locale, interaction.guild_id)
     embed = discord.Embed(
         description=msg,
         colour=0x2ecc71,
@@ -190,10 +194,12 @@ async def award_admin(interaction: discord.Interaction,
         award_order: str,
         ):
     """Настройка наград полка. Создание и изменение"""
+    locale = interaction.locale[:2]
     # ----------------
     # Создание награды
     if action == 'add':
         msg = award_create(
+            locale,
             interaction.guild_id,
             interaction.user,
             award_title,
@@ -204,6 +210,7 @@ async def award_admin(interaction: discord.Interaction,
     # Удаление награды
     if action == 'edit':
         msg = award_edit(
+            locale,
             interaction.guild_id,
             interaction.user,
             award_title,
@@ -234,7 +241,12 @@ async def award_admin(interaction: discord.Interaction,
 @app_commands.autocomplete(award_title=award_autocomplete)
 async def award_admin_delete(interaction: discord.Interaction, award_title: str):
     """Удаление полковых наград из базы данных"""
-    msg = award_delete(interaction.guild_id, interaction.user, award_title)
+    locale = interaction.locale[:2]
+    msg = award_delete(
+            locale,
+            interaction.guild_id,
+            interaction.user,
+            award_title)
     if msg[0] == 'ok':
         colour = 0x2ecc71
     if msg[0] == 'err':
@@ -254,7 +266,8 @@ async def award_admin_delete(interaction: discord.Interaction, award_title: str)
 @client.tree.command(name='топ')
 async def top(interaction: discord.Interaction, start: str = None, end: str = None):
     """Список полковых наград"""
-    msg = get_top(interaction.guild_id, start, end)
+    locale = interaction.locale[:2]
+    msg = get_top(locale, interaction.guild_id, start, end)
     embed = discord.Embed(
         description=msg[1],
         colour=0x2ecc71,
