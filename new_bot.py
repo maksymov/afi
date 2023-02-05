@@ -21,8 +21,8 @@ class MyClient(discord.Client):
 
     async def setup_hook(self):
         # This copies the global commands over to your guild.
-        self.tree.copy_global_to(guild=MY_GUILD)
-        await self.tree.sync(guild=MY_GUILD)
+        #self.tree.copy_global_to(guild=MY_GUILD)
+        await self.tree.sync()
 
 intents = discord.Intents.default()
 client = MyClient(intents=intents)
