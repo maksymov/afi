@@ -222,8 +222,7 @@ def player_award_delete(locale,
 #    return ranks_str
 
 
-def player_awards(locale, guild_id, user_id, start_date=None, fin_date=None):
-    lang = set_locale(locale)
+def player_awards(guild_id, user_id, start_date=None, fin_date=None):
     player, created = Player.objects.get_or_create(guild_id=guild_id,
                                                    user_id=user_id)
     award_list = PlayerAward.objects.filter(player=player).values('award__tag')
@@ -434,8 +433,8 @@ def player_stat(locale, guild_id, user):
         else:
             msg += '(https://github.com/maksymov/afi/blob/master/README_en.md#2-requirements-to-nikcnames) \n'
     # получаю список званий игрока
-    ranks = player_ranks(guild_id, user_id)
-    msg += _(u'**Звания:** ') + ranks
+    #ranks = player_ranks(guild_id, user_id)
+    #msg += _(u'**Звания:** ') + ranks
     # получаю список наград игрока
     awards = player_awards(guild_id, user_id)
     msg += _(u' **Награды:** ') + awards + '\n' + '\n'

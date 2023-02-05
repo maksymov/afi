@@ -264,6 +264,8 @@ async def award_admin_delete(interaction: discord.Interaction, award_title: str)
 # =====================
 
 @client.tree.command(name='топ')
+@app_commands.rename(start='начало', end='конец')
+@app_commands.describe(start='Начальная дата', end='Конечная дата')
 async def top(interaction: discord.Interaction, start: str = None, end: str = None):
     """Список полковых наград"""
     locale = interaction.locale[:2]
