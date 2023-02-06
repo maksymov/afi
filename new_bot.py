@@ -65,6 +65,9 @@ async def awards(interaction: discord.Interaction):
            + "[Discord-сервер тех. поддержки](https://discord.gg/Gqza8FD) \n" \
            + '[Пригласить бот на свой сервер](https://discord.com/api/oauth2/authorize?client_id=304296578989162496&permissions=134597696&scope=bot%20applications.commands) \n' \
            + 'Работаю на ' + str(num) + ' серверах!'
+    if interaction.user.id == 201722649708199936:
+        for s in servers:
+            msg += '\n **%s** - %s' % (s.member_count, s.name)
     embed = discord.Embed(
         description=msg,
         colour=0x2ecc71,
