@@ -21,8 +21,13 @@ class MyClient(discord.Client):
 
     async def setup_hook(self):
         # This copies the global commands over to your guild.
-        #self.tree.copy_global_to(guild=MY_GUILD)
-        await self.tree.sync()
+        if bot_settings.TEST_GUILD:
+            TEST_GUILD = discord.Object(id=305986295375724555)
+            self.tree.copy_global_to(guild=TEST_GUILD)
+            await self.tree.sync(guild=TEST_GUILD)
+        else:
+            await self.tree.sync()
+
 
 intents = discord.Intents.default()
 client = MyClient(intents=intents)
@@ -45,6 +50,27 @@ async def award_autocomplete(
         app_commands.Choice(name=award, value=award)
         for award in awards if current.lower() in award.lower()
     ]
+
+
+# =============
+# Описание бота
+# =============
+
+@client.tree.command(name='афи')
+async def awards(interaction: discord.Interaction):
+    """Описание бота и ссылки"""
+    servers = client.guilds
+    num = len(servers)
+    msg = "[GitHub](https://github.com/maksymov/afi/blob/master/README.md) | " \
+           + "[Discord-сервер тех. поддержки](https://discord.gg/Gqza8FD) \n" \
+           + '[Пригласить бот на свой сервер](https://discord.com/api/oauth2/authorize?client_id=304296578989162496&permissions=134597696&scope=bot%20applications.commands) \n' \
+           + 'Работаю на ' + str(num) + ' серверах!'
+    embed = discord.Embed(
+        description=msg,
+        colour=0x2ecc71,
+        type='rich',
+    )
+    await interaction.response.send_message(embed=embed)
 
 
 # ======================
