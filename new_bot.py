@@ -102,15 +102,19 @@ async def nick(
 # ==========================
 
 @client.tree.command(name='статка')
-@app_commands.rename(player='игрок')
-@app_commands.describe(player='Выбери игрока для просмотра статки')
-async def stat(interaction: discord.Interaction, player: Optional[discord.Member] = None):
+@app_commands.rename(player='игрок', nick='ник')
+@app_commands.describe(
+        player='Выбери игрока для просмотра статки',
+        nick='Напиши ник в тундре')
+async def stat(interaction: discord.Interaction,
+        player: Optional[discord.Member] = None,
+        nick: str = None):
     """Статистика игрока"""
     locale = interaction.locale.value[:2]
     user = interaction.user
     if player:
         user = player
-    msg = player_stat(locale, interaction.guild_id, user)
+    msg = player_stat(locale, interaction.guild_id, user, nick)
     embed = discord.Embed(
         description=msg,
         colour=0x2ecc71,

@@ -376,22 +376,28 @@ def award_edit(locale, guild_id, user, award_title, award_desc, award_icon, awar
 #    return msg
 
 
-def player_stat(locale, guild_id, user):
+def player_stat(locale, guild_id, user, nick):
     user_id = user.id
     lang = set_locale(locale)
     msg = ""
     # получаю статку игрока с ThunderSkill
     user_url="https://thunderskill.com"
-    if re.search(r'\<.*?\>',user.display_name):
-        # получаю ник из треугольных скобок
-        username = re.search(r'\<.*?\>',user.display_name).group(0)[1:-1]
+    if nick:
+        username = nick
     else:
-        # получаю привязанный ник из базы данных
-        player, created = Player.objects.get_or_create(guild_id=guild_id,
-                user_id=user_id)
-        username = player.wt_nick
+        if re.search(r'\<.*?\>',user.display_name):
+            # получаю ник из треугольных скобок
+            username = re.search(r'\<.*?\>',user.display_name).group(0)[1:-1]
+        else:
+            # получаю привязанный ник из базы данных
+            player, created = Player.objects.get_or_create(guild_id=guild_id,
+                    user_id=user_id)
+            username = player.wt_nick
     if username:
         # если есть ник - делаю запрос на thunderskill
+        mention = user.mention
+        if nick:
+            mention = nick
         base_url = "https://thunderskill.com/ru/stat/"
         url = "https://thunderskill.com/ru/stat/" + username + "/export/json"
         headers = {}
@@ -401,7 +407,7 @@ def player_stat(locale, guild_id, user):
             ts_response = urllib.request.urlopen(req)
         except urllib.error.HTTPError as e:
             if e.code == 404:
-                msg += user.mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
+                msg += mention + ' | ' + _(u' не нашёл я такого в ThunderSkill.') \
                 + '[' + _(u'Требования к никам') + ']'
                 if lang == 'ru':
                     msg += '(https://github.com/maksymov/afi/blob/master/README.md#2-%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BA-%D0%BD%D0%B8%D0%BA%D0%B0%D0%BC) \n'
@@ -421,7 +427,7 @@ def player_stat(locale, guild_id, user):
             json_data = urllib.request.urlopen(req).read()
             data = json.loads(json_data.decode())
             user_url = base_url + username
-            msg += user.mention + ' | [ThunderSkill](%s)\n' % (user_url) \
+            msg += mention + ' | [ThunderSkill](%s)\n' % (user_url) \
                     + _(u'(**АБ**) ') + str("%.2f" % data['stats']['a']['kpd']) + '; ' \
                     + _(u'(**РБ**) ') + str("%.2f" % data['stats']['r']['kpd']) + '; ' \
                     + _(u'(**СБ**) ') + str("%.2f" % data['stats']['s']['kpd']) + '; \n'
@@ -436,7 +442,8 @@ def player_stat(locale, guild_id, user):
     #msg += _(u'**Звания:** ') + ranks
     # получаю список наград игрока
     awards = player_awards(guild_id, user_id)
-    msg += _(u' **Награды:** ') + awards + '\n' + '\n'
+    if awards and not nick:
+        msg += _(u' **Награды:** ') + awards + '\n' + '\n'
     return msg
 
 
