@@ -56,7 +56,7 @@ async def award_autocomplete(
 # Описание бота
 # =============
 
-@client.tree.command(name='афи')
+@client.tree.command(name='абамне')
 async def awards(interaction: discord.Interaction):
     """Описание бота и ссылки"""
     servers = client.guilds
