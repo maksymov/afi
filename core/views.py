@@ -138,6 +138,7 @@ def player_award_add(locale,
         award_title=None):
     """Вручение наград игрокам"""
     lang = set_locale(locale)
+    nickname = None
     rights = check_rights(author.roles)
     if rights[0] == 'no':
         msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
@@ -160,8 +161,6 @@ def player_award_add(locale,
         if top_award:
             if award.order >= top_award.award.order:
                 nickname = award.tag + re.sub(tags, '', user.display_name)
-            else:
-                nickname = None
         else:
             nickname = award.tag + user.display_name
     except:
@@ -169,7 +168,7 @@ def player_award_add(locale,
         return msg
     player_award = PlayerAward.objects.create(player=player, award=award)
     msg_response = "<@!%s> получил награду %s %s" % (user.id, award.tag, award.title)
-    msg = ['ok', msg_response, None]
+    msg = ['ok', msg_response, nickname]
     return msg
 
 
