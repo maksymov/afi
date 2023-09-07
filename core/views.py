@@ -7,7 +7,7 @@ import json
 import re
 import urllib
 #import prettytable
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils import translation
@@ -75,60 +75,6 @@ def set_player_nick(locale, guild_id, user_id, nick):
     player.save()
     msg = "Аккаунт WarThunder `%s` привязан!" % (nick)
     return msg
-
-
-#def player_rank_add(message):
-#    """Присвоение званий игрокам"""
-#    set_locale(message)
-#    rights = check_rights(message.author.roles)
-#    if rights[0] == 'no':
-#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-#        return msg
-#    discord_server_id =message.guild.id
-#    message_text = message.clean_content
-#    rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
-#    for user in message.mentions:
-#        discord_id = user.id
-#        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-#                                                       discord_id=discord_id)
-#        try:
-#            rank = Rank.objects.get(discord_server_id=discord_server_id, title=rank_title)
-#        except:
-#            msg = ['err', _(u'Нет такого звания')]
-#            return msg
-#        try:
-#            player_rank = PlayerRank.objects.get(player=player, rank=rank)
-#        except:
-#            player_rank = PlayerRank.objects.create(player=player, rank=rank)
-#    msg = ['ok']
-#    return msg
-
-
-#def player_rank_remove(message):
-#    """Разжалование игрока в звании"""
-#    set_locale(message)
-#    rights = check_rights(message.author.roles)
-#    if rights[0] == 'no':
-#        msg = ['err', _(u"Чего раскомандовался? У тебя нет роли '[AFI] Звания и награды'.")]
-#        return msg
-#    discord_server_id =message.guild.id
-#    message_text = message.clean_content
-#    rank_title = message_text[message_text.find("(") + 1:message_text.find(")")]
-#    for user in message.mentions:
-#        discord_id = user.id
-#        player, created = Player.objects.get_or_create(discord_server_id=discord_server_id,
-#                                                       discord_id=discord_id)
-#        try:
-#            rank = Rank.objects.get(discord_server_id=discord_server_id, title=rank_title)
-#        except:
-#            msg = ['err', _(u'Нет такого звания')]
-#            return msg
-#        try:
-#            player_rank = PlayerRank.objects.get(player=player, rank=rank).delete()
-#        except:
-#            pass
-#    msg = ['ok']
-#    return msg
 
 
 def player_award_add(locale,
@@ -207,19 +153,6 @@ def player_award_delete(locale,
     return msg
 
 
-#def player_ranks(guild_id, user_id):
-#    player, created = Player.objects.get_or_create(guild_id=guild_id,
-#                                                   user_id=user_id)
-#    ranks = PlayerRank.objects.filter(player=player)
-#    ranks_str = ""
-#    if ranks:
-#        for i in ranks:
-#            ranks_str += i.rank.tag + ' | '
-#    else:
-#        ranks_str = _(u"нет")
-#    return ranks_str
-
-
 def player_awards(guild_id, user_id, start_date=None, fin_date=None):
     player, created = Player.objects.get_or_create(guild_id=guild_id,
                                                    user_id=user_id)
@@ -284,7 +217,7 @@ def award_delete(locale, guild_id, user, award_title):
     return msg
 
 
-def award_edit(locale, guild_id, user, award_title, award_desc, award_icon, award_order):
+def award_edit(locale, guild_id, user, award_title, award_desc, award_icon, award_order, award_cost):
     """Редактирование награды"""
     lang = set_locale(locale)
     rights = check_rights(user.roles)
@@ -296,12 +229,14 @@ def award_edit(locale, guild_id, user, award_title, award_desc, award_icon, awar
         award.tag = award_icon
         award.desc = award_desc
         award.order = award_order
+        award.cost = award_cost
         award.save()
-        text = '**Изменена полковая награда:** %s. %s %s | %s' % (
+        text = '**Изменена полковая награда:** %s. %s %s | %s | %s' % (
             award_order,
             award_icon,
             award_title,
-            award_desc
+            award_desc,
+            award_cost
         )
         msg = ['ok', text]
     except:
@@ -483,3 +418,35 @@ def get_top(locale, guild_id, start, end):
         msg = ['err', _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')]
     return msg
 
+
+def get_money(locale, guild_id, start, end):
+    lang = set_locale(locale)
+    seasons = [[1,2], [3,4], [5,6], [7,8], [9,10], [11,12]]
+    year = datetime.now().year
+    month = datetime.now().month
+    if not start:
+        month = [item for item in seasons if month in item][0][0]
+        start = "%s-%s-01" % (year, month)
+    if not end:
+        end = datetime.now().strftime("%Y-%m-%d")
+    txt = "**" + _(u'ГОЛДУ ЗАРАБОТАЛИ') + "** \n"
+    txt += "С %s по %s \n" % (start, end) 
+    try:
+        start_date = datetime.strptime(start, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end, "%Y-%m-%d").date()
+        players = Player.objects.filter(guild_id=guild_id)
+        top_list = PlayerAward.objects.filter(
+                player__in=players,
+                date_from__gte=start_date,
+                date_from__lte=end_date,
+                award__cost__gt=0
+            ).values('player__user_id', 'award__cost').annotate(money=Sum('award__cost')).order_by('-money')
+        print(top_list)
+        for player in top_list:
+            username = "<@!%s>" % (player['player__user_id'])
+            money = str(player['money'])
+            txt += "%s | %s \n" % (money, username)
+        msg = ['ok', txt]
+    except:
+        msg = ['err', _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')]
+    return msg

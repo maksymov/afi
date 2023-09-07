@@ -54,6 +54,7 @@ class Award(models.Model):
     title = models.CharField(max_length=255)
     desc = models.TextField(max_length=600, blank=True)
     order = models.IntegerField(blank=True, null=True)
+    cost = models.IntegerField(default=0)
 
 
 class Player(models.Model):

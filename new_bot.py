@@ -213,7 +213,8 @@ async def awards(interaction: discord.Interaction):
     award_title='назвние',
     award_desc='описание',
     award_icon='иконка',
-    award_order='номер')
+    award_order='номер',
+    award_cost='голды',)
 @app_commands.choices(action=[
     app_commands.Choice(name="Создать", value="add"),
     app_commands.Choice(name="Изменить", value="edit"),
@@ -225,6 +226,7 @@ async def award_admin(interaction: discord.Interaction,
         award_desc: str,
         award_icon: str,
         award_order: str,
+        award_cost: str,
         ):
     """Настройка наград полка. Создание и изменение"""
     locale = interaction.locale.value[:2]
@@ -238,7 +240,8 @@ async def award_admin(interaction: discord.Interaction,
             award_title,
             award_desc,
             award_icon,
-            award_order)
+            award_order,
+            award_cost)
     # ----------------
     # Удаление награды
     if action == 'edit':
@@ -249,7 +252,8 @@ async def award_admin(interaction: discord.Interaction,
             award_title,
             award_desc,
             award_icon,
-            award_order)
+            award_order,
+            award_cost)
     # -------------------
     # Формирование ответа
     if msg[0] == 'ok':
@@ -303,6 +307,25 @@ async def top(interaction: discord.Interaction, start: str = None, end: str = No
     """Список полковых наград"""
     locale = interaction.locale.value[:2]
     msg = get_top(locale, interaction.guild_id, start, end)
+    embed = discord.Embed(
+        description=msg[1],
+        colour=0x2ecc71,
+        type='rich',
+    )
+    await interaction.response.send_message(embed=embed)
+
+
+# =====================
+# Подсчёт кол-ва голды
+# =====================
+
+@client.tree.command(name='голда')
+@app_commands.rename(start='начало', end='конец')
+@app_commands.describe(start='Начальная дата', end='Конечная дата')
+async def top(interaction: discord.Interaction, start: str = None, end: str = None):
+    """Рассчёт голды для каждого игрока за период"""
+    locale = interaction.locale.value[:2]
+    msg = get_money(locale, interaction.guild_id, start, end)
     embed = discord.Embed(
         description=msg[1],
         colour=0x2ecc71,
