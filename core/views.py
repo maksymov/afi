@@ -440,7 +440,7 @@ def get_money(locale, guild_id, start, end):
                 date_from__gte=start_date,
                 date_from__lte=end_date,
                 award__cost__gt=0
-            ).values('player__user_id', 'award__cost').annotate(money=Sum('award__cost')).order_by('-money')
+            ).values('player__user_id', 'award__cost').order_by('player__user_id').annotate(money=Sum('award__cost')).order_by('-money')
         print(top_list)
         for player in top_list:
             username = "<@!%s>" % (player['player__user_id'])
