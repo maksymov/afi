@@ -153,10 +153,12 @@ def player_award_delete(locale,
     return msg
 
 
-def player_awards(guild_id, user_id, start_date=None, fin_date=None):
+def player_awards(guild_id, user_id, start_date=None, fin_date=None, money=False):
     player, created = Player.objects.get_or_create(guild_id=guild_id,
                                                    user_id=user_id)
     award_list = PlayerAward.objects.filter(player=player).values('award__tag')
+    if money:
+        award_list = award_list.exclude(award__cost=0)
     if start_date:
         award_list = award_list.filter(date_from__gte=start_date)
     if fin_date:
@@ -407,8 +409,7 @@ def get_top(locale, guild_id, start, end):
                     guild_id,
                     player['player__user_id'],
                     start_date,
-                    end_date,
-                    )
+                    end_date,)
             username = "<@!%s>" % (player['player__user_id'])
             awards_count = str(player['awards'])
             #x.add_row([username, awards_count, awards])
@@ -440,12 +441,17 @@ def get_money(locale, guild_id, start, end):
                 date_from__gte=start_date,
                 date_from__lte=end_date,
                 award__cost__gt=0
-            ).values('player__user_id', 'award__cost').order_by('player__user_id').annotate(money=Sum('award__cost')).order_by('-money')
-        print(top_list)
+            ).values('player__user_id').annotate(awards=Sum('award__cost')).order_by('-awards')
         for player in top_list:
+            awards = player_awards(
+                    guild_id,
+                    player['player__user_id'],
+                    start_date,
+                    end_date,
+                    money=True)
             username = "<@!%s>" % (player['player__user_id'])
-            money = str(player['money'])
-            txt += "%s | %s \n" % (money, username)
+            awards_count = str(player['awards'])
+            txt += "%s💰 | %s | %s \n" % (awards_count, username, awards)
         msg = ['ok', txt]
     except:
         msg = ['err', _(u'Команда должна выглядеть так: `!топ (ГГГГ-ММ-ДД) [ГГГГ-ММ-ДД]`')]
