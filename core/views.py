@@ -173,7 +173,7 @@ def player_awards(guild_id, user_id, start_date=None, fin_date=None, money=False
     return awards_str
 
 
-def award_create(locale, guild_id, user, award_title, award_desc, award_icon, award_order):
+def award_create(locale, guild_id, user, award_title, award_desc, award_icon, award_order, award_cost):
     """Создание новой награды"""
     lang = set_locale(locale)
     rights = check_rights(user.roles)
@@ -188,7 +188,8 @@ def award_create(locale, guild_id, user, award_title, award_desc, award_icon, aw
                          tag=award_icon,
                          title=award_title,
                          desc=award_desc,
-                         order=award_order)
+                         order=award_order,
+                         cost=award_cost)
     text = '**Создана новая полковая награда:** %s. %s %s | %s' % (
         award_order,
         award_icon,
